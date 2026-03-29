@@ -1,0 +1,626 @@
+{
+  "inventory_metadata": {
+    "generated_date": "2026-03-29",
+    "repository": "aws-mainframe-modernization-carddemo",
+    "source_directory": "app/cbl/",
+    "total_files": 31,
+    "total_lines_of_code": 20650
+  },
+  "programs": [
+    {
+      "filename": "CBSTM03B.CBL",
+      "path": "app/cbl/CBSTM03B.CBL",
+      "program_id": "CBSTM03B",
+      "type": "program",
+      "purpose": "Batch subroutine for file I/O operations (open/close/read) on TRNXFILE, XREFFILE, CUSTFILE, ACCTFILE — called by statement report program",
+      "classification": "shared-infra",
+      "dependencies": {
+        "copybooks": [],
+        "calls": [],
+        "files": ["TRNXFILE", "XREFFILE", "CUSTFILE", "ACCTFILE"]
+      },
+      "cics_commands": [],
+      "lines_of_code": 230,
+      "complexity": "S",
+      "risks": ["Called via LINKAGE SECTION — must preserve calling convention in target platform", "GOBACK semantics differ between batch and CICS"],
+      "gnucobol_notes": "Straightforward batch subroutine. LINKAGE SECTION and GOBACK are fully supported in GnuCOBOL. File I/O with indexed/sequential access works natively.",
+      "java_notes": "Convert to a shared FileAccessService class with methods for each file operation (open, close, read, readByKey). Use Spring Data or JDBC for file-to-DB mapping."
+    },
+    {
+      "filename": "CBSTM03A.CBL",
+      "path": "app/cbl/CBSTM03A.CBL",
+      "program_id": "CBSTM03A",
+      "type": "program",
+      "purpose": "Batch program to generate account statements in plain text and HTML from transaction data, with PSA/TCB/TIOT control block inspection and ALTER/GO TO flow",
+      "classification": "complex-workflow",
+      "dependencies": {
+        "copybooks": ["COSTM01", "CVACT03Y", "CUSTREC", "CVACT01Y"],
+        "calls": ["CBSTM03B", "CEE3ABD"],
+        "files": ["TRNXFILE", "XREFFILE", "CUSTFILE", "ACCTFILE", "STMTFILE", "HTMLFILE"]
+      },
+      "cics_commands": [],
+      "lines_of_code": 924,
+      "complexity": "XL",
+      "risks": ["Uses ALTER and GO TO for dynamic control flow — extremely hard to convert", "PSA/TCB/TIOT mainframe control block addressing via POINTER — z/OS specific", "COMP and COMP-3 variables with 2D arrays", "Tightly coupled to CBSTM03B subroutine"],
+      "gnucobol_notes": "CRITICAL: PSA/TCB/TIOT block addressing (SET ADDRESS OF) is z/OS-specific and will NOT compile. Must be stubbed or removed. ALTER statement is deprecated and not portable. COMP-3 works in GnuCOBOL but test thoroughly.",
+      "java_notes": "Most complex batch program. Refactor the ALTER/GO TO spaghetti into a clean state machine or strategy pattern. Replace control block inspection with environment queries. The HTML generation is a good candidate for a template engine (Thymeleaf/FreeMarker)."
+    },
+    {
+      "filename": "CBACT03C.cbl",
+      "path": "app/cbl/CBACT03C.cbl",
+      "program_id": "CBACT03C",
+      "type": "program",
+      "purpose": "Batch program to read and print the card cross-reference (XREF) data file",
+      "classification": "leaf-unit",
+      "dependencies": {
+        "copybooks": ["CVACT03Y"],
+        "calls": ["CEE3ABD"],
+        "files": ["XREFFILE"]
+      },
+      "cics_commands": [],
+      "lines_of_code": 178,
+      "complexity": "S",
+      "risks": ["CEE3ABD is an IBM LE runtime call for abnormal termination"],
+      "gnucobol_notes": "Simple read-and-display program. Replace CEE3ABD with STOP RUN or a GnuCOBOL-compatible error handler.",
+      "java_notes": "Trivial conversion to a Spring Batch reader/writer or simple main() method that reads a DB table and logs output."
+    },
+    {
+      "filename": "CBACT02C.cbl",
+      "path": "app/cbl/CBACT02C.cbl",
+      "program_id": "CBACT02C",
+      "type": "program",
+      "purpose": "Batch program to read and print the card data file",
+      "classification": "leaf-unit",
+      "dependencies": {
+        "copybooks": ["CVACT02Y"],
+        "calls": ["CEE3ABD"],
+        "files": ["CARDFILE"]
+      },
+      "cics_commands": [],
+      "lines_of_code": 178,
+      "complexity": "S",
+      "risks": ["CEE3ABD IBM LE call"],
+      "gnucobol_notes": "Simple sequential read. Direct port to GnuCOBOL with CEE3ABD replacement.",
+      "java_notes": "Trivial conversion — simple file/DB dump utility."
+    },
+    {
+      "filename": "CBACT01C.cbl",
+      "path": "app/cbl/CBACT01C.cbl",
+      "program_id": "CBACT01C",
+      "type": "program",
+      "purpose": "Batch program to read accounts and write to multiple output files (flat, array, variable-length record formats) with date formatting",
+      "classification": "leaf-unit",
+      "dependencies": {
+        "copybooks": ["CVACT01Y", "CODATECN"],
+        "calls": ["COBDATFT", "CEE3ABD"],
+        "files": ["ACCTFILE", "OUTFILE", "ARRYFILE", "VBRCFILE"]
+      },
+      "cics_commands": [],
+      "lines_of_code": 430,
+      "complexity": "M",
+      "risks": ["Calls assembler program COBDATFT for date formatting", "Variable-length record (RECORDING MODE V) handling", "COMP-3 usage in output records", "OCCURS clause with COMP-3 nested fields"],
+      "gnucobol_notes": "RECORDING MODE V is supported but test variable-length record handling carefully. COBDATFT assembler call must be replaced with a COBOL or C equivalent.",
+      "java_notes": "Replace with Spring Batch ItemReader/ItemWriter. Date formatting via java.time. Multiple output files map to multiple ItemWriters or a CompositeItemWriter."
+    },
+    {
+      "filename": "CBACT04C.cbl",
+      "path": "app/cbl/CBACT04C.cbl",
+      "program_id": "CBACT04C",
+      "type": "program",
+      "purpose": "Batch interest calculator — reads transaction category balances, looks up disclosure group rates, computes monthly interest, and updates account records",
+      "classification": "complex-workflow",
+      "dependencies": {
+        "copybooks": ["CVTRA01Y", "CVACT03Y", "CVTRA02Y", "CVACT01Y", "CVTRA05Y"],
+        "calls": ["CEE3ABD"],
+        "files": ["TCATBALF", "XREFFILE", "DISCGRP", "ACCTFILE", "TRANSACT"]
+      },
+      "cics_commands": [],
+      "lines_of_code": 652,
+      "complexity": "L",
+      "risks": ["Complex business logic for interest calculation", "Multiple file cross-references", "ALTERNATE RECORD KEY on XREF file", "PARM-DATE received via LINKAGE from JCL"],
+      "gnucobol_notes": "ALTERNATE RECORD KEY is supported in GnuCOBOL. PROCEDURE DIVISION USING EXTERNAL-PARMS works. The 1400-COMPUTE-FEES is stubbed ('To be implemented').",
+      "java_notes": "Core business logic — convert to an InterestCalculationService with clear separation of rate lookup, computation, and account update. Consider a domain-driven design approach. The unimplemented fees section is a TODO."
+    },
+    {
+      "filename": "CBCUS01C.cbl",
+      "path": "app/cbl/CBCUS01C.cbl",
+      "program_id": "CBCUS01C",
+      "type": "program",
+      "purpose": "Batch program to read and print the customer data file",
+      "classification": "leaf-unit",
+      "dependencies": {
+        "copybooks": ["CVCUS01Y"],
+        "calls": ["CEE3ABD"],
+        "files": ["CUSTFILE"]
+      },
+      "cics_commands": [],
+      "lines_of_code": 178,
+      "complexity": "S",
+      "risks": ["CEE3ABD IBM LE call"],
+      "gnucobol_notes": "Simple file dump. Direct port.",
+      "java_notes": "Trivial conversion — simple customer file/DB dump utility."
+    },
+    {
+      "filename": "CBTRN01C.cbl",
+      "path": "app/cbl/CBTRN01C.cbl",
+      "program_id": "CBTRN01C",
+      "type": "program",
+      "purpose": "Batch program to read daily transactions, validate card numbers via XREF lookup, and verify account records",
+      "classification": "leaf-unit",
+      "dependencies": {
+        "copybooks": ["CVTRA06Y", "CVCUS01Y", "CVACT03Y", "CVACT02Y", "CVACT01Y", "CVTRA05Y"],
+        "calls": ["CEE3ABD"],
+        "files": ["DALYTRAN", "CUSTFILE", "XREFFILE", "CARDFILE", "ACCTFILE", "TRANFILE"]
+      },
+      "cics_commands": [],
+      "lines_of_code": 494,
+      "complexity": "M",
+      "risks": ["Opens 6 files simultaneously", "Validation-only — no actual posting"],
+      "gnucobol_notes": "Standard batch file I/O. All INDEXED/RANDOM access patterns are supported.",
+      "java_notes": "Convert to a Spring Batch validation step. Card/account lookup becomes JPA repository calls."
+    },
+    {
+      "filename": "CBTRN02C.cbl",
+      "path": "app/cbl/CBTRN02C.cbl",
+      "program_id": "CBTRN02C",
+      "type": "program",
+      "purpose": "Batch program to post daily transactions — validates, writes to transaction file, updates account balances, maintains transaction category balances, and writes rejects",
+      "classification": "complex-workflow",
+      "dependencies": {
+        "copybooks": ["CVTRA06Y", "CVTRA05Y", "CVACT03Y", "CVACT01Y", "CVTRA01Y"],
+        "calls": ["CEE3ABD"],
+        "files": ["DALYTRAN", "TRANFILE", "XREFFILE", "DALYREJS", "ACCTFILE", "TCATBALF"]
+      },
+      "cics_commands": [],
+      "lines_of_code": 731,
+      "complexity": "L",
+      "risks": ["Core transaction posting logic — high business criticality", "6 files open simultaneously with mixed I-O/INPUT/OUTPUT modes", "Creates/rewrites TCATBAL records (upsert pattern)", "DB2 timestamp formatting logic"],
+      "gnucobol_notes": "I-O mode for REWRITE is supported. The RETURN-CODE special register usage should work in GnuCOBOL. Test the TCATBAL create-or-update logic carefully.",
+      "java_notes": "Critical batch job — convert to Spring Batch with chunk-based processing. The validation/posting/rejection flow maps to an ItemProcessor with ItemWriter delegation. Transaction category balance management needs careful DB transaction handling."
+    },
+    {
+      "filename": "CBTRN03C.cbl",
+      "path": "app/cbl/CBTRN03C.cbl",
+      "program_id": "CBTRN03C",
+      "type": "program",
+      "purpose": "Batch program to generate a detailed transaction report with page/account/grand totals, date range filtering, and reference data lookups",
+      "classification": "leaf-unit",
+      "dependencies": {
+        "copybooks": ["CVTRA05Y", "CVACT03Y", "CVTRA03Y", "CVTRA04Y", "CVTRA07Y"],
+        "calls": ["CEE3ABD"],
+        "files": ["TRANFILE", "CARDXREF", "TRANTYPE", "TRANCATG", "TRANREPT", "DATEPARM"]
+      },
+      "cics_commands": [],
+      "lines_of_code": 649,
+      "complexity": "M",
+      "risks": ["NEXT SENTENCE usage (archaic, different from CONTINUE)", "Report pagination logic", "6 files open simultaneously"],
+      "gnucobol_notes": "NEXT SENTENCE is supported but behaves differently from CONTINUE — verify control flow. Report file writing is straightforward.",
+      "java_notes": "Convert to Spring Batch report generation. Use JasperReports or custom report builder. Date range parameters become command-line args or job parameters."
+    },
+    {
+      "filename": "CBIMPORT.cbl",
+      "path": "app/cbl/CBIMPORT.cbl",
+      "program_id": "CBIMPORT",
+      "type": "program",
+      "purpose": "Batch program to import customer data from branch migration export file — splits multi-record types into separate normalized output files with validation and statistics",
+      "classification": "leaf-unit",
+      "dependencies": {
+        "copybooks": ["CVCUS01Y", "CVACT01Y", "CVACT03Y", "CVTRA05Y", "CVACT02Y", "CVEXPORT"],
+        "calls": ["CEE3ABD"],
+        "files": ["EXPFILE", "CUSTOUT", "ACCTOUT", "XREFOUT", "TRNXOUT", "CARDOUT", "ERROUT"]
+      },
+      "cics_commands": [],
+      "lines_of_code": 487,
+      "complexity": "M",
+      "risks": ["7 files open simultaneously", "RECORDING MODE IS F specification", "Import statistics and error handling"],
+      "gnucobol_notes": "Standard batch file splitting. RECORDING MODE IS F is a z/OS extension — remove or replace with standard FD. All file I/O patterns are supported.",
+      "java_notes": "Convert to a Spring Batch multi-format file reader with classifier-based routing to different writers. Error handling maps to skip/retry policies."
+    },
+    {
+      "filename": "CBEXPORT.cbl",
+      "path": "app/cbl/CBEXPORT.cbl",
+      "program_id": "CBEXPORT",
+      "type": "program",
+      "purpose": "Batch program to export customer data for branch migration — reads all CardDemo files and creates multi-record export file with statistics",
+      "classification": "leaf-unit",
+      "dependencies": {
+        "copybooks": ["CVCUS01Y", "CVACT01Y", "CVACT03Y", "CVTRA05Y", "CVACT02Y", "CVEXPORT"],
+        "calls": ["CEE3ABD"],
+        "files": ["CUSTFILE", "ACCTFILE", "XREFFILE", "TRANSACT", "CARDFILE", "EXPFILE"]
+      },
+      "cics_commands": [],
+      "lines_of_code": 582,
+      "complexity": "M",
+      "risks": ["6 input files + 1 output file open simultaneously", "ACCEPT ... FROM DATE YYYYMMDD and FROM TIME syntax", "RECORDING MODE IS F"],
+      "gnucobol_notes": "ACCEPT FROM DATE YYYYMMDD is supported in GnuCOBOL. RECORDING MODE IS F should be removed. File key references (CUST-ID, ACCT-ID etc.) come from COPYbooks in FD section — verify they resolve correctly.",
+      "java_notes": "Convert to a Spring Batch export job with CompositeItemReader reading from multiple tables and a single ItemWriter producing the export format."
+    },
+    {
+      "filename": "COBSWAIT.cbl",
+      "path": "app/cbl/COBSWAIT.cbl",
+      "program_id": "COBSWAIT",
+      "type": "program",
+      "purpose": "Tiny batch utility to pause execution for a specified time in centiseconds via MVSWAIT",
+      "classification": "leaf-unit",
+      "dependencies": {
+        "copybooks": [],
+        "calls": ["MVSWAIT"],
+        "files": []
+      },
+      "cics_commands": [],
+      "lines_of_code": 41,
+      "complexity": "S",
+      "risks": ["MVSWAIT is an IBM-specific wait service"],
+      "gnucobol_notes": "Replace MVSWAIT CALL with a COBOL ACCEPT/DISPLAY timer or C interop for sleep().",
+      "java_notes": "Replace with Thread.sleep() — trivial."
+    },
+    {
+      "filename": "CSUTLDTC.cbl",
+      "path": "app/cbl/CSUTLDTC.cbl",
+      "program_id": "CSUTLDTC",
+      "type": "program",
+      "purpose": "Shared date validation utility — calls CEEDAYS (IBM LE) to validate dates and returns descriptive error codes",
+      "classification": "shared-infra",
+      "dependencies": {
+        "copybooks": [],
+        "calls": ["CEEDAYS"],
+        "files": []
+      },
+      "cics_commands": [],
+      "lines_of_code": 157,
+      "complexity": "S",
+      "risks": ["CEEDAYS is IBM Language Environment specific", "Feedback code uses hex literal 88-level checks", "Called by COTRN02C and CORPT00C"],
+      "gnucobol_notes": "CEEDAYS must be replaced. GnuCOBOL has no built-in equivalent. Write a replacement using FUNCTION INTEGER-OF-DATE or a C-interop wrapper.",
+      "java_notes": "Replace with java.time.LocalDate.parse() with DateTimeFormatter. Return validation result as a simple response object."
+    },
+    {
+      "filename": "COSGN00C.cbl",
+      "path": "app/cbl/COSGN00C.cbl",
+      "program_id": "COSGN00C",
+      "type": "program",
+      "purpose": "CICS sign-on screen — authenticates users against USRSEC file and routes to admin menu (COADM01C) or regular menu (COMEN01C)",
+      "classification": "shared-infra",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "COSGN00", "COTTL01Y", "CSDAT01Y", "CSMSG01Y", "CSUSR01Y", "DFHAID", "DFHBMSCA"],
+        "calls": [],
+        "files": ["USRSEC"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "READ", "SEND TEXT", "ASSIGN"],
+      "lines_of_code": 260,
+      "complexity": "M",
+      "risks": ["Entry point for the entire application", "Password comparison in plain text", "FUNCTION UPPER-CASE usage"],
+      "gnucobol_notes": "CICS commands not supported — requires complete rewrite for non-CICS environment. All EXEC CICS blocks must be replaced.",
+      "java_notes": "Convert to Spring Security authentication controller. User lookup becomes a UserDetailsService implementation. The admin/regular routing becomes role-based access control."
+    },
+    {
+      "filename": "COMEN01C.cbl",
+      "path": "app/cbl/COMEN01C.cbl",
+      "program_id": "COMEN01C",
+      "type": "program",
+      "purpose": "CICS main menu for regular users — displays menu options and routes to selected feature programs via XCTL",
+      "classification": "shared-infra",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "COMEN02Y", "COMEN01", "COTTL01Y", "CSDAT01Y", "CSMSG01Y", "CSUSR01Y", "DFHAID", "DFHBMSCA"],
+        "calls": [],
+        "files": []
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "INQUIRE PROGRAM"],
+      "lines_of_code": 308,
+      "complexity": "M",
+      "risks": ["Dynamic XCTL based on menu option table — must map all target programs", "INQUIRE PROGRAM is CICS-specific to check program availability", "Central routing hub — many programs depend on this"],
+      "gnucobol_notes": "Not portable to GnuCOBOL due to heavy CICS dependency. Requires full rewrite.",
+      "java_notes": "Convert to a Spring MVC controller with menu template. Dynamic routing becomes @RequestMapping methods. Menu configuration from COMEN02Y copybook becomes application properties."
+    },
+    {
+      "filename": "COADM01C.cbl",
+      "path": "app/cbl/COADM01C.cbl",
+      "program_id": "COADM01C",
+      "type": "program",
+      "purpose": "CICS admin menu for admin users — displays admin options and routes to user management programs",
+      "classification": "shared-infra",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "COADM02Y", "COADM01", "COTTL01Y", "CSDAT01Y", "CSMSG01Y", "CSUSR01Y", "DFHAID", "DFHBMSCA"],
+        "calls": [],
+        "files": []
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "HANDLE CONDITION"],
+      "lines_of_code": 288,
+      "complexity": "M",
+      "risks": ["HANDLE CONDITION PGMIDERR — CICS-specific error handling", "Dynamic XCTL from admin option table"],
+      "gnucobol_notes": "Not portable due to CICS dependency.",
+      "java_notes": "Convert to admin dashboard controller. Menu options from COADM02Y become admin-specific endpoints."
+    },
+    {
+      "filename": "COTRN00C.cbl",
+      "path": "app/cbl/COTRN00C.cbl",
+      "program_id": "COTRN00C",
+      "type": "program",
+      "purpose": "CICS program to list transactions from TRANSACT file with paginated browse (PF7/PF8) and selection for detail view",
+      "classification": "simple-container",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "COTRN00", "COTTL01Y", "CSDAT01Y", "CSMSG01Y", "CVTRA05Y", "DFHAID", "DFHBMSCA"],
+        "calls": [],
+        "files": ["TRANSACT"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "STARTBR", "READNEXT", "READPREV", "ENDBR"],
+      "lines_of_code": 699,
+      "complexity": "L",
+      "risks": ["Forward/backward pagination via STARTBR/READNEXT/READPREV/ENDBR — complex browse pattern", "10-row list display with repetitive EVALUATE blocks", "Selection routing to COTRN01C via XCTL"],
+      "gnucobol_notes": "Heavy CICS browse commands not portable. Requires full rewrite.",
+      "java_notes": "Convert to a paginated REST API with Spring Data JPA Pageable. The 10-row screen maps to page size. Selection becomes a detail link/endpoint."
+    },
+    {
+      "filename": "COTRN01C.cbl",
+      "path": "app/cbl/COTRN01C.cbl",
+      "program_id": "COTRN01C",
+      "type": "program",
+      "purpose": "CICS program to view a single transaction detail from TRANSACT file with field display",
+      "classification": "simple-container",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "COTRN01", "COTTL01Y", "CSDAT01Y", "CSMSG01Y", "CVTRA05Y", "DFHAID", "DFHBMSCA"],
+        "calls": [],
+        "files": ["TRANSACT"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "READ"],
+      "lines_of_code": 330,
+      "complexity": "M",
+      "risks": ["READ with UPDATE option — acquires lock even for view-only", "Navigation back to COTRN00C or COMEN01C"],
+      "gnucobol_notes": "CICS READ with DATASET not portable.",
+      "java_notes": "Convert to a transaction detail REST endpoint. The READ UPDATE should become a simple SELECT (no locking needed for view)."
+    },
+    {
+      "filename": "COTRN02C.cbl",
+      "path": "app/cbl/COTRN02C.cbl",
+      "program_id": "COTRN02C",
+      "type": "program",
+      "purpose": "CICS program to add a new transaction — validates input fields, calls CSUTLDTC for date validation, writes to TRANSACT file, and updates account balance",
+      "classification": "complex-workflow",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "COTRN02", "COTTL01Y", "CSDAT01Y", "CSMSG01Y", "CVTRA05Y", "CVACT01Y", "CVACT03Y", "DFHAID", "DFHBMSCA"],
+        "calls": ["CSUTLDTC"],
+        "files": ["TRANSACT", "ACCTDAT", "CCXREF", "CXACAIX"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "READ", "WRITE", "REWRITE", "STARTBR", "READPREV", "ENDBR", "ASKTIME", "FORMATTIME"],
+      "lines_of_code": 783,
+      "complexity": "L",
+      "risks": ["Cross-file transaction: writes TRANSACT + updates ACCTDAT — no CICS SYNCPOINT", "Calls CSUTLDTC for date validation", "ASKTIME/FORMATTIME for timestamps", "Auto-generates transaction ID by reading last ID and incrementing"],
+      "gnucobol_notes": "Not portable due to heavy CICS usage including ASKTIME, FORMATTIME, and multiple file operations.",
+      "java_notes": "Convert to a transactional service method with @Transactional. Date validation via java.time. Timestamp generation via Instant.now(). Transaction ID generation needs a sequence or UUID strategy."
+    },
+    {
+      "filename": "COACTVWC.cbl",
+      "path": "app/cbl/COACTVWC.cbl",
+      "program_id": "COACTVWC",
+      "type": "program",
+      "purpose": "CICS program to view account details — reads card XREF, account master, and customer master files to display a consolidated account view",
+      "classification": "simple-container",
+      "dependencies": {
+        "copybooks": ["CVCRD01Y", "COCOM01Y", "DFHBMSCA", "DFHAID", "COTTL01Y", "COACTVW", "CSDAT01Y", "CSMSG01Y", "CSMSG02Y", "CSUSR01Y", "CVACT01Y", "CVACT02Y", "CVACT03Y", "CVCUS01Y", "CSSTRPFY"],
+        "calls": [],
+        "files": ["ACCTDAT", "CARDDAT", "CUSTDAT", "CXACAIX", "CARDAIX"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "READ", "HANDLE ABEND", "SEND TEXT", "SEND", "ABEND"],
+      "lines_of_code": 941,
+      "complexity": "L",
+      "risks": ["Reads 3 different files (xref, account, customer) to compose view", "HANDLE ABEND with label — non-structured error handling", "STRING for SSN formatting", "Copies CSSTRPFY for PF key storage"],
+      "gnucobol_notes": "Not portable due to CICS dependency. Very large working storage with many copybooks.",
+      "java_notes": "Convert to an AccountViewController with three JPA repository calls. SSN formatting becomes a display utility. The composite data gathering maps to a service aggregation pattern."
+    },
+    {
+      "filename": "COACTUPC.cbl",
+      "path": "app/cbl/COACTUPC.cbl",
+      "program_id": "COACTUPC",
+      "type": "program",
+      "purpose": "CICS program to update account details — extensive field-level validation, date validation via CSUTLDTC, reads/rewrites account and customer records",
+      "classification": "complex-workflow",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "DFHBMSCA", "DFHAID", "COTTL01Y", "COACTVW", "CSDAT01Y", "CSMSG01Y", "CSMSG02Y", "CSUSR01Y", "CVACT01Y", "CVACT02Y", "CVACT03Y", "CVCUS01Y", "CVCRD01Y", "CSSTRPFY"],
+        "calls": ["CSUTLDTC"],
+        "files": ["ACCTDAT", "CUSTDAT", "CXACAIX"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "READ", "REWRITE", "HANDLE ABEND", "SEND TEXT", "SEND", "ABEND"],
+      "lines_of_code": 4236,
+      "complexity": "XL",
+      "risks": ["LARGEST program in the codebase (4236 lines)", "Extremely detailed field-level input validation (phone, date, state, zip, SSN, numeric, alpha, yes/no)", "Multiple REWRITE operations across ACCTDAT and CUSTDAT without SYNCPOINT", "Calls CSUTLDTC for date validation", "INSPECT CONVERTING for case conversion"],
+      "gnucobol_notes": "Not portable. The sheer size and CICS dependency make this the hardest single program to migrate.",
+      "java_notes": "Break into multiple classes: AccountUpdateController, AccountUpdateValidator, AccountUpdateService. Use Bean Validation (JSR-380) for field validation. Spring @Transactional for multi-file updates."
+    },
+    {
+      "filename": "COCRDSLC.cbl",
+      "path": "app/cbl/COCRDSLC.cbl",
+      "program_id": "COCRDSLC",
+      "type": "program",
+      "purpose": "CICS program to view credit card details — accepts account/card search criteria and displays card information",
+      "classification": "simple-container",
+      "dependencies": {
+        "copybooks": ["CVCRD01Y", "COCOM01Y", "DFHBMSCA", "DFHAID", "COTTL01Y", "COCRDSL", "CSDAT01Y", "CSMSG01Y", "CSMSG02Y", "CSUSR01Y", "CVACT02Y", "CVCUS01Y", "CSSTRPFY"],
+        "calls": [],
+        "files": ["CARDDAT", "CARDAIX"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "READ", "HANDLE ABEND", "SEND TEXT", "SEND", "ABEND"],
+      "lines_of_code": 887,
+      "complexity": "L",
+      "risks": ["Two different file access paths (by card number and by account alternate index)", "Shared page with COCRDLIC for navigation"],
+      "gnucobol_notes": "Not portable due to CICS dependency.",
+      "java_notes": "Convert to a card detail REST endpoint. Two access paths become two JPA finder methods."
+    },
+    {
+      "filename": "COCRDLIC.cbl",
+      "path": "app/cbl/COCRDLIC.cbl",
+      "program_id": "COCRDLIC",
+      "type": "program",
+      "purpose": "CICS program to list credit cards — paginated browse with selection for view/update, supporting admin (all cards) and user (account-specific) modes",
+      "classification": "complex-workflow",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "DFHBMSCA", "DFHAID", "COTTL01Y", "COCRDLI", "CSDAT01Y", "CSMSG01Y", "CSMSG02Y", "CSUSR01Y", "CVACT02Y", "CVCUS01Y", "CVCRD01Y", "CSSTRPFY"],
+        "calls": [],
+        "files": ["CARDDAT", "CARDAIX"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "STARTBR", "READNEXT", "READPREV", "ENDBR", "HANDLE ABEND", "SEND TEXT", "SEND", "ABEND"],
+      "lines_of_code": 1459,
+      "complexity": "XL",
+      "risks": ["Dual browse mode (all cards vs. account-specific)", "7-row selection with view/update routing to COCRDSLC/COCRDUPC", "Complex STARTBR/READNEXT/READPREV pagination", "COMP-3 subscript variables"],
+      "gnucobol_notes": "Not portable due to CICS browse commands.",
+      "java_notes": "Convert to a paginated card list REST endpoint with Spring Data JPA. Selection routing becomes links to detail/update endpoints. Admin vs. user filtering via Spring Security roles."
+    },
+    {
+      "filename": "COCRDUPC.cbl",
+      "path": "app/cbl/COCRDUPC.cbl",
+      "program_id": "COCRDUPC",
+      "type": "program",
+      "purpose": "CICS program to update credit card details — validates card name, status, expiry month/year, and rewrites card record with confirmation flow",
+      "classification": "simple-container",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "DFHBMSCA", "DFHAID", "COTTL01Y", "COCRDUP", "CSDAT01Y", "CSMSG01Y", "CSMSG02Y", "CSUSR01Y", "CVACT02Y", "CVCUS01Y", "CVCRD01Y", "CSSTRPFY"],
+        "calls": [],
+        "files": ["CARDDAT", "CARDAIX"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "READ", "REWRITE", "HANDLE ABEND", "SEND TEXT", "SEND", "ABEND"],
+      "lines_of_code": 1560,
+      "complexity": "XL",
+      "risks": ["Detailed input validation for card fields", "REWRITE for card update", "Confirmation flow (Y/N before save)", "Multiple screen attribute manipulations"],
+      "gnucobol_notes": "Not portable due to CICS dependency.",
+      "java_notes": "Convert to a card update REST endpoint with validation. Confirmation flow becomes a two-step UI interaction (preview + confirm)."
+    },
+    {
+      "filename": "COBIL00C.cbl",
+      "path": "app/cbl/COBIL00C.cbl",
+      "program_id": "COBIL00C",
+      "type": "program",
+      "purpose": "CICS bill payment program — pays account balance in full by creating a bill payment transaction and updating the account record",
+      "classification": "complex-workflow",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "COBIL00", "COTTL01Y", "CSDAT01Y", "CSMSG01Y", "CVACT01Y", "CVACT03Y", "CVTRA05Y", "DFHAID", "DFHBMSCA"],
+        "calls": [],
+        "files": ["TRANSACT", "ACCTDAT", "CXACAIX"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "READ", "WRITE", "REWRITE", "STARTBR", "READPREV", "ENDBR", "ASKTIME", "FORMATTIME"],
+      "lines_of_code": 572,
+      "complexity": "L",
+      "risks": ["Cross-file transaction: reads ACCTDAT, reads CXACAIX, writes TRANSACT, updates ACCTDAT", "Auto-generates transaction ID from last record", "ASKTIME/FORMATTIME for timestamps", "Business-critical payment processing"],
+      "gnucobol_notes": "Not portable due to CICS commands including ASKTIME, FORMATTIME, STARTBR.",
+      "java_notes": "Convert to a PaymentService with @Transactional. Critical to ensure atomicity of payment + account update. Use database sequences for transaction ID generation."
+    },
+    {
+      "filename": "CORPT00C.cbl",
+      "path": "app/cbl/CORPT00C.cbl",
+      "program_id": "CORPT00C",
+      "type": "program",
+      "purpose": "CICS program to submit batch transaction reports via extra-partition TDQ (transient data queue) — supports monthly, yearly, and custom date range reports",
+      "classification": "complex-workflow",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "CORPT00", "COTTL01Y", "CSDAT01Y", "CSMSG01Y", "CVTRA05Y", "DFHAID", "DFHBMSCA"],
+        "calls": ["CSUTLDTC"],
+        "files": ["TRANSACT"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "WRITEQ TD"],
+      "lines_of_code": 649,
+      "complexity": "L",
+      "risks": ["WRITEQ TD submits JCL to internal reader — z/OS-specific pattern", "JCL-in-COBOL: embedded JOB/STEP/DD statements in WORKING-STORAGE", "Calls CSUTLDTC for date validation", "DATE-OF-INTEGER and INTEGER-OF-DATE intrinsic functions for date arithmetic"],
+      "gnucobol_notes": "WRITEQ TD and JCL submission not portable at all. The date arithmetic functions ARE supported in GnuCOBOL.",
+      "java_notes": "Replace JCL submission with a Spring Batch job launcher. Report parameters become job parameters. The TDQ write becomes a REST call to trigger the batch job. Consider using Spring Cloud Task."
+    },
+    {
+      "filename": "COUSR00C.cbl",
+      "path": "app/cbl/COUSR00C.cbl",
+      "program_id": "COUSR00C",
+      "type": "program",
+      "purpose": "CICS program to list all users from USRSEC file with paginated browse (PF7/PF8) and selection for update (U) or delete (D)",
+      "classification": "simple-container",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "COUSR00", "COTTL01Y", "CSDAT01Y", "CSMSG01Y", "CSUSR01Y", "DFHAID", "DFHBMSCA"],
+        "calls": [],
+        "files": ["USRSEC"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "STARTBR", "READNEXT", "READPREV", "ENDBR"],
+      "lines_of_code": 695,
+      "complexity": "L",
+      "risks": ["Paginated browse with 10-row display", "Selection routing to COUSR02C (update) and COUSR03C (delete)"],
+      "gnucobol_notes": "Not portable due to CICS browse commands.",
+      "java_notes": "Convert to paginated user list REST endpoint. Selection becomes links to update/delete endpoints."
+    },
+    {
+      "filename": "COUSR01C.cbl",
+      "path": "app/cbl/COUSR01C.cbl",
+      "program_id": "COUSR01C",
+      "type": "program",
+      "purpose": "CICS program to add a new user (regular or admin) to USRSEC file with field validation",
+      "classification": "simple-container",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "COUSR01", "COTTL01Y", "CSDAT01Y", "CSMSG01Y", "CSUSR01Y", "DFHAID", "DFHBMSCA"],
+        "calls": [],
+        "files": ["USRSEC"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "WRITE"],
+      "lines_of_code": 299,
+      "complexity": "M",
+      "risks": ["Duplicate key handling (DUPKEY/DUPREC)", "Password stored in plain text"],
+      "gnucobol_notes": "Not portable due to CICS WRITE command.",
+      "java_notes": "Convert to user registration REST endpoint. Use BCrypt for password hashing. Duplicate detection via JPA unique constraints."
+    },
+    {
+      "filename": "COUSR02C.cbl",
+      "path": "app/cbl/COUSR02C.cbl",
+      "program_id": "COUSR02C",
+      "type": "program",
+      "purpose": "CICS program to update user details in USRSEC file — loads current data, allows field modification, and rewrites record",
+      "classification": "simple-container",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "COUSR02", "COTTL01Y", "CSDAT01Y", "CSMSG01Y", "CSUSR01Y", "DFHAID", "DFHBMSCA"],
+        "calls": [],
+        "files": ["USRSEC"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "READ", "REWRITE"],
+      "lines_of_code": 414,
+      "complexity": "M",
+      "risks": ["READ with UPDATE then REWRITE pattern", "Change detection via field comparison"],
+      "gnucobol_notes": "Not portable due to CICS READ/REWRITE.",
+      "java_notes": "Convert to user update REST endpoint with dirty-checking (JPA handles this automatically)."
+    },
+    {
+      "filename": "COUSR03C.cbl",
+      "path": "app/cbl/COUSR03C.cbl",
+      "program_id": "COUSR03C",
+      "type": "program",
+      "purpose": "CICS program to delete a user from USRSEC file — loads user, confirms, then deletes",
+      "classification": "simple-container",
+      "dependencies": {
+        "copybooks": ["COCOM01Y", "COUSR03", "COTTL01Y", "CSDAT01Y", "CSMSG01Y", "CSUSR01Y", "DFHAID", "DFHBMSCA"],
+        "calls": [],
+        "files": ["USRSEC"]
+      },
+      "cics_commands": ["SEND MAP", "RECEIVE", "RETURN", "XCTL", "READ", "DELETE"],
+      "lines_of_code": 359,
+      "complexity": "M",
+      "risks": ["READ UPDATE + DELETE pattern", "Confirmation via PF5 key"],
+      "gnucobol_notes": "Not portable due to CICS DELETE command.",
+      "java_notes": "Convert to user delete REST endpoint with confirmation step."
+    }
+  ],
+  "summary": {
+    "by_classification": {
+      "leaf-unit": {
+        "count": 10,
+        "programs": ["CBACT03C", "CBACT02C", "CBACT01C", "CBCUS01C", "CBTRN01C", "CBTRN03C", "CBIMPORT", "CBEXPORT", "COBSWAIT", "COCRDSLC"]
+      },
+      "simple-container": {
+        "count": 8,
+        "programs": ["COTRN00C", "COTRN01C", "COUSR00C", "COUSR01C", "COUSR02C", "COUSR03C", "COACTVWC", "COCRDUPC"]
+      },
+      "complex-workflow": {
+        "count": 7,
+        "programs": ["CBSTM03A", "CBACT04C", "CBTRN02C", "COTRN02C", "COBIL00C", "CORPT00C", "COCRDLIC", "COACTUPC"]
+      },
+      "shared-infra": {
+        "count": 5,
+        "programs": ["CBSTM03B", "CSUTLDTC", "COSGN00C", "COMEN01C", "COADM01C"]
+      }
+    },
+    "by_complexity": {
+      "S": {"count": 7, "programs": ["COBSWAIT", "CSUTLDTC", "CBACT03C", "CBACT02C", "CBCUS01C", "CBSTM03B", "COCRDSLC"]},
+      "M": {"count": 11, "programs": ["CBACT01C", "CBTRN01C", "CBTRN03C", "CBIMPORT", "CBEXPORT", "COSGN00C", "COMEN01C", "COADM01C", "COTRN01C", "COUSR01C", "COUSR02C", "COUSR03C"]},
+      "L": {"count": 8, "programs": ["CBACT04C", "CBTRN02C", "COTRN00C", "COTRN02C", "COACTVWC", "COBIL00C", "CORPT00C", "COUSR00C"]},
+      "XL": {"count": 4, "programs": ["CBSTM03A", "COCRDLIC", "COCRDUPC", "COACTUPC"]}
+    }
+  }
+}
