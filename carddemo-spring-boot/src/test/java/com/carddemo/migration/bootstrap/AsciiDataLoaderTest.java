@@ -43,7 +43,7 @@ class AsciiDataLoaderTest {
         assertThat(cardRepository.count()).isEqualTo(50);
         assertThat(cardXrefRepository.count()).isEqualTo(50);
         assertThat(transactionCategoryBalanceRepository.count()).isEqualTo(50);
-        assertThat(disclosureGroupRepository.count()).isEqualTo(51);
+        assertThat(disclosureGroupRepository.count()).isEqualTo(52);
         assertThat(dailyTransactionRepository.count()).isEqualTo(300);
     }
 }

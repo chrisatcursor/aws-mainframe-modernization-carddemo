@@ -91,6 +91,43 @@ CardDemo includes several optional modules that extend the base functionality:
    - DB2 and IMS DB load/unload operations
    - Internal reader functionality
 
+## Spring Boot Migration Module
+
+A Java/Spring Boot migration module now exists at:
+
+- `carddemo-spring-boot/`
+
+### Prerequisites (for migrated module)
+- Java 21
+- Network access to Maven Central (for wrapper dependency resolution)
+
+### Build and test
+```bash
+cd carddemo-spring-boot
+./mvnw -DskipTests compile
+./mvnw test
+```
+
+### Run migrated REST/BATCH app
+```bash
+cd carddemo-spring-boot
+./mvnw spring-boot:run
+```
+
+After startup, health endpoint:
+
+- `GET http://localhost:8080/api/health`
+
+### Implemented migrated endpoints
+- `GET /api/accounts/{accountId}`
+- `PUT /api/accounts/{accountId}`
+- `GET /api/cards?accountId=&cardNumber=&page=&size=`
+- `GET /api/cards/{cardNumber}?accountId=`
+- `PUT /api/cards/{cardNumber}?accountId=`
+- `POST /api/batch/posting`
+- `POST /api/batch/interest?parmDate=YYYY-MM-DD`
+- `POST /api/batch/statements?statementDate=YYYY-MM-DD`
+
 ## Installation
 
 ### Prerequisites
