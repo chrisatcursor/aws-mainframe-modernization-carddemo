@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Error</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card">
+        <h3 th:text="${errorTitle} ?: 'Error'">Error</h3>
+        <p th:text="${errorDetail} ?: 'An unexpected error occurred.'">Something went wrong.</p>
+        <div class="mt-2">
+            <a th:href="@{/menu}" class="btn btn-secondary">Return to Menu</a>
+        </div>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+    <div th:fragment="header" class="header-bar">
+        <div class="header-title">
+            <h1>AWS Mainframe Modernization</h1>
+            <h2>CardDemo</h2>
+        </div>
+        <div class="header-info" sec:authorize="isAuthenticated()">
+            <span>User: <span sec:authentication="name">unknown</span></span>
+            <span th:text="${T(java.time.LocalDate).now()}"></span>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit" class="link-button">Sign Off</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title layout:title-pattern="$CONTENT_TITLE - CardDemo">CardDemo</title>
+    <link rel="stylesheet" th:href="@{/css/carddemo.css}"/>
+</head>
+<body>
+    <header class="app-header">
+        <div th:replace="~{fragments/header :: header}"></div>
+    </header>
+
+    <div class="app-messages">
+        <div th:replace="~{fragments/messages :: messages}"></div>
+    </div>
+
+    <main class="app-content">
+        <section layout:fragment="content"></section>
+    </main>
+
+    <footer class="app-footer">
+        <p>AWS Mainframe Modernization &mdash; CardDemo</p>
+    </footer>
+</body>
+</html>
