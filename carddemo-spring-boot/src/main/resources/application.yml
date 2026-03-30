@@ -31,3 +31,7 @@ management:
 logging:
   level:
     org.springframework.batch: INFO
+
+carddemo:
+  bootstrap:
+    enabled: true
