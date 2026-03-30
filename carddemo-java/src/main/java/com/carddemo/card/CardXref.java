@@ -25,6 +25,15 @@ public class CardXref {
 
     protected CardXref() {}
 
+    /** Constructs a detached instance for tests and batch fixtures (not a persistence subclass). */
+    public static CardXref of(String cardNumber, Long customerId, Long accountId) {
+        CardXref x = new CardXref();
+        x.setCardNumber(cardNumber);
+        x.setCustomerId(customerId);
+        x.setAccountId(accountId);
+        return x;
+    }
+
     public String getCardNumber() { return cardNumber; }
     public void setCardNumber(String cardNumber) { this.cardNumber = cardNumber; }
     public Long getCustomerId() { return customerId; }
