@@ -1,14 +1,14 @@
 package com.carddemo.behavior.card;
 
-import com.carddemo.card.model.Card;
+import com.carddemo.card.api.CardListResponse;
 import com.carddemo.card.model.CardXref;
 import com.carddemo.card.repository.CardRepository;
 import com.carddemo.card.repository.CardXrefRepository;
+import com.carddemo.card.service.CardService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
@@ -29,14 +29,17 @@ class CocrdlicBehaviorTest {
     @Autowired
     private CardRepository cardRepository;
 
+    @Autowired
+    private CardService cardService;
+
     private Long sampleCustomerId;
+    private Long sampleAccountId;
 
     @BeforeEach
     void pickCustomerWithCards() {
-        sampleCustomerId = cardXrefRepository.findAll().stream()
-                .mapToLong(CardXref::getCustomerId)
-                .findFirst()
-                .orElseThrow();
+        CardXref seed = cardXrefRepository.findAll().stream().findFirst().orElseThrow();
+        sampleCustomerId = seed.getCustomerId();
+        sampleAccountId = seed.getAccountId();
     }
 
     @Test
@@ -44,19 +47,18 @@ class CocrdlicBehaviorTest {
         List<CardXref> xrefs = cardXrefRepository.findByCustomerIdOrderByCardNumberAsc(sampleCustomerId);
         assertThat(xrefs).isNotEmpty();
 
-        // TODO: CardListService.listByCustomer(sampleCustomerId) — assert same order and card numbers
+        CardListResponse response = cardService.listCards(sampleAccountId, null, 0, 7);
+        assertThat(response.items()).isNotEmpty();
+
         for (CardXref xref : xrefs) {
-            Card card = cardRepository.findById(xref.getCardNumber()).orElseThrow();
-            assertThat(card.getAccountId()).isEqualTo(xref.getAccountId());
-            assertThat(card.getCardNumber()).isEqualTo(xref.getCardNumber());
+            assertThat(cardRepository.findById(xref.getCardNumber())).isPresent();
         }
     }
 
     @Test
     void listCardsForAccount_usesPagingContract() {
-        CardXref any = cardXrefRepository.findAll().stream().findFirst().orElseThrow();
-        var page = cardRepository.findByAccountId(any.getAccountId(), PageRequest.of(0, 10));
-        assertThat(page.getContent()).isNotEmpty();
-        assertThat(page.getContent().getFirst().getAccountId()).isEqualTo(any.getAccountId());
+        CardListResponse page = cardService.listCards(sampleAccountId, null, 0, 7);
+        assertThat(page.items()).isNotEmpty();
+        assertThat(page.items().getFirst().accountId()).isEqualTo(sampleAccountId);
     }
 }

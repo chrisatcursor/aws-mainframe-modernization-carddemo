@@ -4,9 +4,11 @@ import com.carddemo.account.model.Account;
 import com.carddemo.account.model.Customer;
 import com.carddemo.account.repository.AccountRepository;
 import com.carddemo.account.repository.CustomerRepository;
+import com.carddemo.account.service.AccountService;
 import com.carddemo.card.model.CardXref;
 import com.carddemo.card.repository.CardXrefRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SpringBootTest
 @TestPropertySource(properties = "carddemo.bootstrap.enabled=true")
+@Tag("phase2")
 class CoactvwcBehaviorTest {
 
     @Autowired
@@ -32,6 +35,9 @@ class CoactvwcBehaviorTest {
 
     @Autowired
     private CardXrefRepository cardXrefRepository;
+
+    @Autowired
+    private AccountService accountService;
 
     private Long sampleAccountId;
 
@@ -46,7 +52,7 @@ class CoactvwcBehaviorTest {
 
     @Test
     void viewAccountDetails_returnsAccountWithFinancialFieldsPopulated() {
-        // TODO: AccountViewService.getAccountDetails(sampleAccountId) — assert DTO maps these fields
+        var view = accountService.getAccountView(sampleAccountId);
         Account account = accountRepository.findById(sampleAccountId).orElseThrow();
 
         assertThat(account.getActiveStatus()).isNotBlank();
@@ -55,6 +61,10 @@ class CoactvwcBehaviorTest {
         assertThat(account.getCashCreditLimit()).isNotNull();
         assertThat(account.getCurrentCycleCredit()).isNotNull();
         assertThat(account.getCurrentCycleDebit()).isNotNull();
+
+        assertThat(view.accountId()).isEqualTo(account.getAccountId());
+        assertThat(view.currentBalance()).isEqualByComparingTo(account.getCurrentBalance());
+        assertThat(view.creditLimit()).isEqualByComparingTo(account.getCreditLimit());
     }
 
     @Test
@@ -62,11 +72,13 @@ class CoactvwcBehaviorTest {
         List<CardXref> xrefs = cardXrefRepository.findByAccountIdOrderByCardNumberAsc(sampleAccountId);
         assertThat(xrefs).isNotEmpty();
 
+        var view = accountService.getAccountView(sampleAccountId);
         for (CardXref xref : xrefs) {
-            // TODO: service should expose same customer join as legacy screen
             Customer customer = customerRepository.findById(xref.getCustomerId()).orElseThrow();
             assertThat(customer.getCustomerId()).isEqualTo(xref.getCustomerId());
             assertThat(customer.getCustomerId()).isPositive();
         }
+        assertThat(view.customerId()).isEqualTo(xrefs.getFirst().getCustomerId());
+        assertThat(view.firstName()).isNotBlank();
     }
 }

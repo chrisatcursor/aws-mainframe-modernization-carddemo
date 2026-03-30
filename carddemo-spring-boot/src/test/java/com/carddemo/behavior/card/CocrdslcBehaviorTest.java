@@ -1,7 +1,9 @@
 package com.carddemo.behavior.card;
 
+import com.carddemo.card.api.CardDetailResponse;
 import com.carddemo.card.model.CardXref;
 import com.carddemo.card.repository.CardXrefRepository;
+import com.carddemo.card.service.CardService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,15 +22,16 @@ class CocrdslcBehaviorTest {
     @Autowired
     private CardXrefRepository cardXrefRepository;
 
+    @Autowired
+    private CardService cardService;
+
     @Test
     void selectCard_resolvesXref_whenAccountAndCardNumberMatch() {
         CardXref seed = cardXrefRepository.findAll().stream().findFirst().orElseThrow();
 
-        // TODO: CardSelectionService.resolve(seed.getAccountId(), seed.getCardNumber())
-        var found = cardXrefRepository.findByAccountIdAndCardNumber(seed.getAccountId(), seed.getCardNumber());
-
-        assertThat(found).isPresent();
-        assertThat(found.get().getCustomerId()).isEqualTo(seed.getCustomerId());
-        assertThat(found.get().getAccountId()).isEqualTo(seed.getAccountId());
+        CardDetailResponse detail = cardService.getCardDetail(seed.getCardNumber(), seed.getAccountId());
+        assertThat(detail.customerId()).isEqualTo(seed.getCustomerId());
+        assertThat(detail.accountId()).isEqualTo(seed.getAccountId());
+        assertThat(detail.cardNumber()).isEqualTo(seed.getCardNumber());
     }
 }

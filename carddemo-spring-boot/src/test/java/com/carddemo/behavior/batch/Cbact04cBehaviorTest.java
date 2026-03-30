@@ -2,10 +2,10 @@ package com.carddemo.behavior.batch;
 
 import com.carddemo.account.model.Account;
 import com.carddemo.account.repository.AccountRepository;
+import com.carddemo.batch.service.InterestCalculationBatchService;
 import com.carddemo.transaction.model.TransactionCategoryBalance;
 import com.carddemo.transaction.model.TransactionCategoryBalanceId;
 import com.carddemo.transaction.repository.TransactionCategoryBalanceRepository;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,6 +28,9 @@ class Cbact04cBehaviorTest {
     @Autowired
     private TransactionCategoryBalanceRepository transactionCategoryBalanceRepository;
 
+    @Autowired
+    private InterestCalculationBatchService interestCalculationBatchService;
+
     @Test
     void seedAccount_hasCategoryBalanceRowsForCycleRollup() {
         Account account = accountRepository.findAll().stream().findFirst().orElseThrow();
@@ -39,7 +42,6 @@ class Cbact04cBehaviorTest {
 
     @Test
     @Transactional
-    @Disabled("Wire AccountCycleBatchService (CBACT04C) then remove; act is TODO")
     void applyCycleBatch_updatesAccountCycleDebitCredit_andCategoryBalances() {
         Account account = accountRepository.findAll().stream().findFirst().orElseThrow();
         TransactionCategoryBalanceId id = transactionCategoryBalanceRepository.findAll().stream()
@@ -48,7 +50,7 @@ class Cbact04cBehaviorTest {
                 .findFirst()
                 .orElseThrow();
 
-        // TODO: accountCycleBatchService.applyPostedTransactions(account.getAccountId(), /* run params */);
+        interestCalculationBatchService.calculateInterest("2026-03-30");
 
         Account reloaded = accountRepository.findById(account.getAccountId()).orElseThrow();
         assertThat(reloaded.getCurrentCycleDebit()).isNotNull();
