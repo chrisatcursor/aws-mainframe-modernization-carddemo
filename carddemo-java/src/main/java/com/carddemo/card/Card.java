@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 /**
  * JPA entity mapped from COBOL copybook CVACT02Y (CARD-RECORD, RECLN 150).
@@ -32,7 +33,16 @@ public class Card {
     @Column(name = "active_status", length = 1)
     private String activeStatus;
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     protected Card() {}
+
+    /** Detached row for batch import (CBIMPORT / {@code dataImportJob}). */
+    public static Card forImport() {
+        return new Card();
+    }
 
     public String getCardNumber() { return cardNumber; }
     public void setCardNumber(String cardNumber) { this.cardNumber = cardNumber; }
@@ -46,4 +56,6 @@ public class Card {
     public void setExpirationDate(String expirationDate) { this.expirationDate = expirationDate; }
     public String getActiveStatus() { return activeStatus; }
     public void setActiveStatus(String activeStatus) { this.activeStatus = activeStatus; }
+    public Long getVersion() { return version; }
+    public void setVersion(Long version) { this.version = version; }
 }

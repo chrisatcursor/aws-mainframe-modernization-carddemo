@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 /**
  * JPA entity mapped from COBOL copybook CVCUS01Y (CUSTOMER-RECORD, RECLN 500).
@@ -68,7 +69,16 @@ public class Customer {
     @Column(name = "fico_credit_score")
     private Integer ficoCreditScore;
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     protected Customer() {}
+
+    /** Detached row for batch import (CBIMPORT / {@code dataImportJob}). */
+    public static Customer forImport() {
+        return new Customer();
+    }
 
     public Long getCustId() { return custId; }
     public void setCustId(Long custId) { this.custId = custId; }
@@ -106,4 +116,6 @@ public class Customer {
     public void setPrimaryCardHolderIndicator(String primaryCardHolderIndicator) { this.primaryCardHolderIndicator = primaryCardHolderIndicator; }
     public Integer getFicoCreditScore() { return ficoCreditScore; }
     public void setFicoCreditScore(Integer ficoCreditScore) { this.ficoCreditScore = ficoCreditScore; }
+    public Long getVersion() { return version; }
+    public void setVersion(Long version) { this.version = version; }
 }

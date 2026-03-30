@@ -56,6 +56,11 @@ public class Transaction {
 
     protected Transaction() {}
 
+    /** Detached row for batch import (CBIMPORT / {@code dataImportJob}). */
+    public static Transaction forImport() {
+        return new Transaction();
+    }
+
     public String getTransactionId() { return transactionId; }
     public void setTransactionId(String transactionId) { this.transactionId = transactionId; }
     public String getTypeCode() { return typeCode; }
