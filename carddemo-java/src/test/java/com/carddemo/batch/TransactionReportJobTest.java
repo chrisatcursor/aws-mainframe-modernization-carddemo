@@ -5,8 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.carddemo.card.CardXref;
 import com.carddemo.card.CardXrefRepository;
 import com.carddemo.transaction.Transaction;
+import com.carddemo.transaction.TransactionCategory;
+import com.carddemo.transaction.TransactionCategory.TransactionCategoryKey;
+import com.carddemo.transaction.TransactionCategoryRepository;
 import com.carddemo.transaction.TransactionFactory;
 import com.carddemo.transaction.TransactionRepository;
+import com.carddemo.transaction.TransactionType;
+import com.carddemo.transaction.TransactionTypeRepository;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -44,13 +49,23 @@ class TransactionReportJobTest {
     @Autowired
     private CardXrefRepository cardXrefRepository;
 
+    @Autowired
+    private TransactionTypeRepository transactionTypeRepository;
+
+    @Autowired
+    private TransactionCategoryRepository transactionCategoryRepository;
+
     @AfterEach
     void tearDown() {
-        transactionRepository.deleteById("TEST-RPT-00000001");
+        transactionRepository.deleteById("TSTRPT0000000001");
         for (int i = 0; i < 8; i++) {
-            transactionRepository.deleteById("TEST-RPT-PAGE-" + i);
+            transactionRepository.deleteById(String.format("TSTRPTPG%08d", i));
         }
-        cardXrefRepository.deleteById(TEST_CARD_NUM);
+        cardXrefRepository.findById(TEST_CARD_NUM).ifPresent(cardXrefRepository::delete);
+        transactionCategoryRepository
+                .findById(new TransactionCategoryKey("01", 1))
+                .ifPresent(transactionCategoryRepository::delete);
+        transactionTypeRepository.findById("01").ifPresent(transactionTypeRepository::delete);
     }
 
     @Test
@@ -75,10 +90,10 @@ class TransactionReportJobTest {
 
     @Test
     void transactionReportJob_enrichesLines_withTypeAndCategoryDescriptions() throws Exception {
-        seedTestCardXref();
+        seedReportReferenceData();
 
         Transaction tx = TransactionFactory.newTransaction();
-        tx.setTransactionId("TEST-RPT-00000001");
+        tx.setTransactionId("TSTRPT0000000001");
         tx.setCardNumber(TEST_CARD_NUM);
         tx.setTypeCode("01");
         tx.setCategoryCode(1);
@@ -107,11 +122,11 @@ class TransactionReportJobTest {
 
     @Test
     void transactionReportJob_paginates_whenLinesPerPageExceeded() throws Exception {
-        seedTestCardXref();
+        seedReportReferenceData();
 
         for (int i = 0; i < 7; i++) {
             Transaction tx = TransactionFactory.newTransaction();
-            tx.setTransactionId("TEST-RPT-PAGE-" + i);
+            tx.setTransactionId(String.format("TSTRPTPG%08d", i));
             tx.setCardNumber(TEST_CARD_NUM);
             tx.setTypeCode("01");
             tx.setCategoryCode(1);
@@ -141,7 +156,9 @@ class TransactionReportJobTest {
         assertThat(pageTotals).isEqualTo(3);
     }
 
-    private void seedTestCardXref() {
+    private void seedReportReferenceData() {
+        transactionTypeRepository.save(TransactionType.of("01", "Purchase"));
+        transactionCategoryRepository.save(TransactionCategory.of("01", 1, "Regular Sales Draft"));
         cardXrefRepository.save(CardXref.of(TEST_CARD_NUM, 1L, 1L));
     }
 

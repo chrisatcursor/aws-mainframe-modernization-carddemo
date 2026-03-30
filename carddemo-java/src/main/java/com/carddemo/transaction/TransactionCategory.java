@@ -25,6 +25,14 @@ public class TransactionCategory {
 
     protected TransactionCategory() {}
 
+    /** Detached instance for tests and seed helpers. */
+    public static TransactionCategory of(String typeCode, int categoryCode, String description) {
+        TransactionCategory c = new TransactionCategory();
+        c.setId(new TransactionCategoryKey(typeCode, categoryCode));
+        c.setDescription(description);
+        return c;
+    }
+
     public TransactionCategoryKey getId() { return id; }
     public void setId(TransactionCategoryKey id) { this.id = id; }
     public String getDescription() { return description; }

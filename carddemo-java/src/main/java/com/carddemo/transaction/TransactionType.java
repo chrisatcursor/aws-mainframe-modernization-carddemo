@@ -22,6 +22,14 @@ public class TransactionType {
 
     protected TransactionType() {}
 
+    /** Detached instance for tests and seed helpers. */
+    public static TransactionType of(String typeCode, String typeDescription) {
+        TransactionType t = new TransactionType();
+        t.setTypeCode(typeCode);
+        t.setTypeDescription(typeDescription);
+        return t;
+    }
+
     public String getTypeCode() { return typeCode; }
     public void setTypeCode(String typeCode) { this.typeCode = typeCode; }
     public String getTypeDescription() { return typeDescription; }
