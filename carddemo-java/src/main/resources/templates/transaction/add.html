@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Add Transaction</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card">
+        <h3>Add transaction</h3>
+
+        <p class="inline-actions mb-2">
+            <a th:href="@{/transaction/list}" class="btn btn-secondary">Back to list</a>
+        </p>
+
+        <form th:action="@{/transaction/add}" th:object="${request}" method="post">
+            <div th:if="${#fields.hasGlobalErrors()}" class="form-group">
+                <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="field-error"></p>
+            </div>
+
+            <div class="form-group">
+                <label for="cardNumber">Card number</label>
+                <input id="cardNumber" type="text" th:field="*{cardNumber}" maxlength="16"
+                       th:classappend="${#fields.hasErrors('cardNumber')} ? ' field-error' : ''"/>
+                <p th:if="${#fields.hasErrors('cardNumber')}" th:errors="*{cardNumber}" class="field-error"></p>
+            </div>
+            <div class="form-group">
+                <label for="typeCode">Type code</label>
+                <input id="typeCode" type="text" th:field="*{typeCode}" maxlength="2"
+                       th:classappend="${#fields.hasErrors('typeCode')} ? ' field-error' : ''"/>
+                <p th:if="${#fields.hasErrors('typeCode')}" th:errors="*{typeCode}" class="field-error"></p>
+            </div>
+            <div class="form-group">
+                <label for="categoryCode">Category code</label>
+                <input id="categoryCode" type="number" th:field="*{categoryCode}"
+                       th:classappend="${#fields.hasErrors('categoryCode')} ? ' field-error' : ''"/>
+                <p th:if="${#fields.hasErrors('categoryCode')}" th:errors="*{categoryCode}" class="field-error"></p>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input id="description" type="text" th:field="*{description}" maxlength="100"
+                       th:classappend="${#fields.hasErrors('description')} ? ' field-error' : ''"/>
+                <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="field-error"></p>
+            </div>
+            <div class="form-group">
+                <label for="amount">Amount</label>
+                <input id="amount" type="text" th:field="*{amount}"
+                       th:classappend="${#fields.hasErrors('amount')} ? ' field-error' : ''"/>
+                <p th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}" class="field-error"></p>
+            </div>
+            <div class="form-group">
+                <label for="merchantName">Merchant name</label>
+                <input id="merchantName" type="text" th:field="*{merchantName}" maxlength="50"
+                       th:classappend="${#fields.hasErrors('merchantName')} ? ' field-error' : ''"/>
+                <p th:if="${#fields.hasErrors('merchantName')}" th:errors="*{merchantName}" class="field-error"></p>
+            </div>
+            <div class="form-group">
+                <label for="merchantCity">Merchant city</label>
+                <input id="merchantCity" type="text" th:field="*{merchantCity}" maxlength="50"
+                       th:classappend="${#fields.hasErrors('merchantCity')} ? ' field-error' : ''"/>
+                <p th:if="${#fields.hasErrors('merchantCity')}" th:errors="*{merchantCity}" class="field-error"></p>
+            </div>
+            <div class="form-group">
+                <label for="merchantZip">Merchant ZIP</label>
+                <input id="merchantZip" type="text" th:field="*{merchantZip}" maxlength="10"
+                       th:classappend="${#fields.hasErrors('merchantZip')} ? ' field-error' : ''"/>
+                <p th:if="${#fields.hasErrors('merchantZip')}" th:errors="*{merchantZip}" class="field-error"></p>
+            </div>
+            <div class="form-group">
+                <label for="originTimestamp">Origin timestamp</label>
+                <input id="originTimestamp" type="text" th:field="*{originTimestamp}"
+                       placeholder="yyyy-MM-dd HH:mm:ss.SSSSSS"
+                       th:classappend="${#fields.hasErrors('originTimestamp')} ? ' field-error' : ''"/>
+                <p th:if="${#fields.hasErrors('originTimestamp')}" th:errors="*{originTimestamp}" class="field-error"></p>
+            </div>
+
+            <div class="inline-actions">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a th:href="@{/transaction/list}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+</body>
+</html>

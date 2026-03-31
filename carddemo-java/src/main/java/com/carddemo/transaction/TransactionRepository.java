@@ -25,4 +25,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
             """)
     Page<Transaction> findForReportByProcessedDateRange(
             @Param("startDate") String startDate, @Param("endDate") String endDate, Pageable pageable);
+
+    @Query(value = "SELECT nextval('transaction_id_seq')", nativeQuery = true)
+    Long getNextTransactionId();
 }

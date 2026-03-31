@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Admin Menu</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card">
+        <h3 th:text="${menuTitle}">Admin Menu</h3>
+
+        <div class="menu-grid">
+            <a th:each="opt : ${menuOptions}"
+               th:href="@{${opt.endpoint()}}"
+               class="menu-item">
+                <span class="menu-number" th:text="${opt.number() + '.'}"></span>
+                <span th:text="${opt.name()}"></span>
+            </a>
+        </div>
+    </div>
+</section>
+</body>
+</html>

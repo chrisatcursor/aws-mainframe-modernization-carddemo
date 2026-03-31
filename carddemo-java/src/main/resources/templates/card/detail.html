@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Credit Card Detail</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card" th:if="${promptForId}">
+        <h3>Card Detail</h3>
+        <form th:action="@{/card/detail}" method="get">
+            <div class="form-group">
+                <label for="cardNumber">Card Number</label>
+                <input type="text" id="cardNumber" name="cardNumber" maxlength="16" required autofocus
+                       placeholder="Enter card number"/>
+            </div>
+            <button type="submit" class="btn btn-primary">View</button>
+        </form>
+    </div>
+
+    <div class="card" th:if="${card}">
+        <h3>Credit Card Detail</h3>
+
+        <dl class="detail-grid">
+            <dt>Card Number</dt>
+            <dd th:text="${card.cardNumber()}">—</dd>
+            <dt>Account ID</dt>
+            <dd th:text="${card.accountId()}">—</dd>
+            <dt>Embossed Name</dt>
+            <dd th:text="${card.embossedName()}">—</dd>
+            <dt>Expiration</dt>
+            <dd th:text="${card.expirationDate()}">—</dd>
+            <dt>Active Status</dt>
+            <dd th:text="${card.activeStatus()}">—</dd>
+        </dl>
+
+        <div class="inline-actions mt-2">
+            <a class="btn btn-secondary" th:href="@{/card/list}">Back to List</a>
+            <a class="btn btn-primary" th:href="@{/card/{id}/edit(id=${card.cardNumber()})}">Edit</a>
+        </div>
+    </div>
+
+    <div class="mt-2" th:if="${promptForId}">
+        <a th:href="@{/menu}" class="btn btn-secondary">Back to Menu</a>
+    </div>
+</section>
+</body>
+</html>

@@ -17,7 +17,7 @@ public final class MenuConfig {
         new MenuOption(4,  "Credit Card View",           "/card/detail",        MenuOption.ROLE_USER),
         new MenuOption(5,  "Credit Card Update",         "/card/update",        MenuOption.ROLE_USER),
         new MenuOption(6,  "Transaction List",           "/transaction/list",   MenuOption.ROLE_USER),
-        new MenuOption(7,  "Transaction View",           "/transaction/detail", MenuOption.ROLE_USER),
+        new MenuOption(7,  "Transaction View",           "/transaction/list",   MenuOption.ROLE_USER),
         new MenuOption(8,  "Transaction Add",            "/transaction/add",    MenuOption.ROLE_USER),
         new MenuOption(9,  "Transaction Reports",        "/report/submit",      MenuOption.ROLE_USER),
         new MenuOption(10, "Bill Payment",               "/payment/bill",       MenuOption.ROLE_USER),

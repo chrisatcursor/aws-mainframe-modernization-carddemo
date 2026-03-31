@@ -2,9 +2,11 @@ package com.carddemo.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -12,6 +14,11 @@ import jakarta.persistence.EntityNotFoundException;
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Void> handleResponseStatus(ResponseStatusException ex) {
+        return new ResponseEntity<>(ex.getStatusCode());
+    }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public String handleNotFound(EntityNotFoundException ex, Model model) {

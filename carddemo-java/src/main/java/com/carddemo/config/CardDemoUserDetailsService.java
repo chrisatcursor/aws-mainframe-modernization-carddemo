@@ -17,11 +17,11 @@ import java.util.List;
  * COBOL lookup: READ DATASET(USRSEC) INTO(SEC-USER-DATA) RIDFLD(WS-USER-ID).
  */
 @Service
-public class StubUserDetailsService implements UserDetailsService {
+public class CardDemoUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
-    public StubUserDetailsService(UserRepository userRepository) {
+    public CardDemoUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
