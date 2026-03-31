@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Account View</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card" th:if="${promptForId}">
+        <h3>Account View</h3>
+        <form th:action="@{/account/view}" method="get">
+            <div class="form-group">
+                <label for="acctId">Account ID</label>
+                <input type="number" id="acctId" name="acctId" required autofocus placeholder="Enter Account ID"/>
+            </div>
+            <button type="submit" class="btn btn-primary">View</button>
+        </form>
+    </div>
+
+    <div th:if="${detail}">
+        <div class="card">
+            <h3>Account Details</h3>
+            <div class="detail-grid">
+                <span class="detail-label">Account ID</span>
+                <span class="detail-value" th:text="${detail.acctId}"></span>
+                <span class="detail-label">Status</span>
+                <span class="detail-value" th:text="${detail.activeStatus == 'Y' ? 'Active' : 'Inactive'}"></span>
+                <span class="detail-label">Current Balance</span>
+                <span class="detail-value" th:text="${detail.currentBalance != null ? #numbers.formatDecimal(detail.currentBalance, 1, 2) : '—'}"></span>
+                <span class="detail-label">Credit Limit</span>
+                <span class="detail-value" th:text="${detail.creditLimit != null ? #numbers.formatDecimal(detail.creditLimit, 1, 2) : '—'}"></span>
+                <span class="detail-label">Cash Credit Limit</span>
+                <span class="detail-value" th:text="${detail.cashCreditLimit != null ? #numbers.formatDecimal(detail.cashCreditLimit, 1, 2) : '—'}"></span>
+                <span class="detail-label">Open Date</span>
+                <span class="detail-value" th:text="${detail.openDate}"></span>
+                <span class="detail-label">Expiration Date</span>
+                <span class="detail-value" th:text="${detail.expirationDate}"></span>
+                <span class="detail-label">Reissue Date</span>
+                <span class="detail-value" th:text="${detail.reissueDate}"></span>
+                <span class="detail-label">Current Cycle Credit</span>
+                <span class="detail-value" th:text="${detail.currentCycleCredit != null ? #numbers.formatDecimal(detail.currentCycleCredit, 1, 2) : '—'}"></span>
+                <span class="detail-label">Current Cycle Debit</span>
+                <span class="detail-value" th:text="${detail.currentCycleDebit != null ? #numbers.formatDecimal(detail.currentCycleDebit, 1, 2) : '—'}"></span>
+                <span class="detail-label">Account ZIP</span>
+                <span class="detail-value" th:text="${detail.accountAddressZip}"></span>
+                <span class="detail-label">Group ID</span>
+                <span class="detail-value" th:text="${detail.groupId}"></span>
+            </div>
+        </div>
+
+        <div class="card" th:if="${detail.custId != null}">
+            <h3>Customer Information</h3>
+            <div class="detail-grid">
+                <span class="detail-label">Customer ID</span>
+                <span class="detail-value" th:text="${detail.custId}"></span>
+                <span class="detail-label">First Name</span>
+                <span class="detail-value" th:text="${detail.firstName}"></span>
+                <span class="detail-label">Middle Name</span>
+                <span class="detail-value" th:text="${detail.middleName}"></span>
+                <span class="detail-label">Last Name</span>
+                <span class="detail-value" th:text="${detail.lastName}"></span>
+                <span class="detail-label">Address Line 1</span>
+                <span class="detail-value" th:text="${detail.addressLine1}"></span>
+                <span class="detail-label">Address Line 2</span>
+                <span class="detail-value" th:text="${detail.addressLine2}"></span>
+                <span class="detail-label">Address Line 3</span>
+                <span class="detail-value" th:text="${detail.addressLine3}"></span>
+                <span class="detail-label">State</span>
+                <span class="detail-value" th:text="${detail.addressStateCode}"></span>
+                <span class="detail-label">Customer ZIP</span>
+                <span class="detail-value" th:text="${detail.customerAddressZip}"></span>
+                <span class="detail-label">Country</span>
+                <span class="detail-value" th:text="${detail.addressCountryCode}"></span>
+                <span class="detail-label">Phone 1</span>
+                <span class="detail-value" th:text="${detail.phoneNumber1}"></span>
+                <span class="detail-label">Phone 2</span>
+                <span class="detail-value" th:text="${detail.phoneNumber2}"></span>
+                <span class="detail-label">SSN</span>
+                <span class="detail-value" th:text="${detail.ssn}"></span>
+                <span class="detail-label">Government ID</span>
+                <span class="detail-value" th:text="${detail.govtIssuedId}"></span>
+                <span class="detail-label">Date of Birth</span>
+                <span class="detail-value" th:text="${detail.dateOfBirth}"></span>
+                <span class="detail-label">EFT Account ID</span>
+                <span class="detail-value" th:text="${detail.eftAccountId}"></span>
+                <span class="detail-label">Primary Card Holder</span>
+                <span class="detail-value" th:text="${detail.primaryCardHolderIndicator}"></span>
+                <span class="detail-label">FICO Score</span>
+                <span class="detail-value" th:text="${detail.ficoCreditScore}"></span>
+            </div>
+        </div>
+
+        <div class="card" th:if="${cards != null && !cards.isEmpty()}">
+            <h3>Linked Cards</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Card Number</th>
+                        <th>Status</th>
+                        <th>Expiry Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="card : ${cards}">
+                        <td th:text="${card.cardNumber}"></td>
+                        <td th:text="${card.activeStatus == 'Y' ? 'Active' : 'Inactive'}"></td>
+                        <td th:text="${card.expirationDate}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-2">
+        <a th:href="@{/menu}" class="btn btn-secondary">Back to Menu</a>
+    </div>
+</section>
+</body>
+</html>

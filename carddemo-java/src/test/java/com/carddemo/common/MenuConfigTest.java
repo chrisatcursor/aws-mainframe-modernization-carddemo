@@ -14,8 +14,8 @@ class MenuConfigTest {
     }
 
     @Test
-    void adminMenu_has6Options() {
-        assertThat(MenuConfig.ADMIN_MENU_OPTIONS).hasSize(6);
+    void adminMenu_has7Options() {
+        assertThat(MenuConfig.ADMIN_MENU_OPTIONS).hasSize(7);
     }
 
     @Test

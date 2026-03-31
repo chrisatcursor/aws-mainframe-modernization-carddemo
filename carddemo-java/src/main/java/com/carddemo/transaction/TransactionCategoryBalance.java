@@ -25,6 +25,15 @@ public class TransactionCategoryBalance {
 
     protected TransactionCategoryBalance() {}
 
+    /** For use outside this package (e.g. batch) without exposing a public no-arg constructor. */
+    public static TransactionCategoryBalance newWithIdAndBalance(
+            TransactionCategoryBalanceKey id, BigDecimal balance) {
+        TransactionCategoryBalance row = new TransactionCategoryBalance();
+        row.setId(id);
+        row.setBalance(balance);
+        return row;
+    }
+
     public TransactionCategoryBalanceKey getId() { return id; }
     public void setId(TransactionCategoryBalanceKey id) { this.id = id; }
     public BigDecimal getBalance() { return balance; }

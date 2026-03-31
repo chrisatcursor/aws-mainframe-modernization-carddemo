@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Transaction Types</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card">
+        <h3>Transaction types</h3>
+        <p><a th:href="@{/admin/trantype/update}" class="btn btn-primary">Add / edit type</a></p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr><th>Code</th><th>Description</th><th></th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="t : ${types}">
+                    <td th:text="${t.typeCode}">01</td>
+                    <td th:text="${t.typeDescription}">-</td>
+                    <td><a th:href="@{/admin/trantype/update(typeCode=${t.typeCode})}">Edit</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card">
+        <h3>Transaction categories</h3>
+        <p class="muted">TRC_TYPE_CATEGORY (4-char) aligned with DB2 optional module.</p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr><th>Type</th><th>Cat #</th><th>Cat code</th><th>Description</th><th></th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${categories}">
+                    <td th:text="${c.id.typeCode}">01</td>
+                    <td th:text="${c.id.categoryCode}">1</td>
+                    <td th:text="${c.categoryCode}">0001</td>
+                    <td th:text="${c.description}">-</td>
+                    <td>
+                        <a th:href="@{/admin/trantype/category(typeCode=${c.id.typeCode},catCd=${c.id.categoryCode})}">Edit</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p><a th:href="@{/admin/trantype/category}" class="btn btn-secondary">Add category</a></p>
+    </div>
+    <p><a th:href="@{/admin/dashboard}">Admin menu</a></p>
+</section>
+</body>
+</html>

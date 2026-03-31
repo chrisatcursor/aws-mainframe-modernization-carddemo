@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Pending Authorizations</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card">
+        <h3>Pending Authorization Summaries</h3>
+        <div th:if="${#lists.isEmpty(summaries)}" class="muted">No pending authorization data.</div>
+        <div th:if="${!#lists.isEmpty(summaries)}" class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Account</th>
+                    <th>Customer</th>
+                    <th>Approved #</th>
+                    <th>Declined #</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${summaries}">
+                    <td th:text="${s.acctId}">1</td>
+                    <td th:text="${s.custId}">1</td>
+                    <td th:text="${s.approvedAuthCnt}">0</td>
+                    <td th:text="${s.declinedAuthCnt}">0</td>
+                    <td><a th:href="@{/auth/pending/{id}(id=${s.acctId})}">Details</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

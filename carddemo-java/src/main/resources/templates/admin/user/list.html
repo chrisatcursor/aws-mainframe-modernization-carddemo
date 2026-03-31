@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>User List</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card">
+        <h3>Users</h3>
+
+        <p class="inline-actions mb-2">
+            <a th:href="@{/admin/user/add}" class="btn btn-primary">Add user</a>
+            <a th:href="@{/admin/dashboard}" class="btn btn-secondary">Admin menu</a>
+        </p>
+
+        <p th:if="${page.content().isEmpty()}" class="message message-info">No users found</p>
+
+        <table th:unless="${page.content().isEmpty()}" class="mb-2">
+            <thead>
+            <tr>
+                <th>User ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Type</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="u : ${page.content()}">
+                <td th:text="${u.userId}">USER0001</td>
+                <td th:text="${u.firstName}">First</td>
+                <td th:text="${u.lastName}">Last</td>
+                <td th:text="${u.userType == 'A' ? 'Admin' : 'Regular'}">Regular</td>
+                <td class="inline-actions">
+                    <a th:href="@{/admin/user/update(userId=${u.userId})}" class="btn btn-secondary">Edit</a>
+                    <a th:href="@{/admin/user/delete(userId=${u.userId})}" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div th:if="${page.totalPages() > 1}" class="inline-actions mt-2">
+            <a th:if="${page.hasPrevious()}"
+               th:href="@{/admin/user/list(page=${page.pageNumber() - 1}, size=10)}"
+               class="btn btn-secondary">Previous</a>
+            <a th:if="${page.hasNext()}"
+               th:href="@{/admin/user/list(page=${page.pageNumber() + 1}, size=10)}"
+               class="btn btn-secondary">Next</a>
+        </div>
+    </div>
+</section>
+</body>
+</html>

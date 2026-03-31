@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Credit Card List</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card">
+        <h3>Credit Card List</h3>
+
+        <form th:action="@{/card/list}" method="get" class="mb-2">
+            <input type="hidden" name="page" value="0"/>
+            <input type="hidden" name="size" th:value="${pageSize}"/>
+
+            <div th:if="${adminBrowse}" class="form-group">
+                <label for="accountId">Account ID</label>
+                <input id="accountId" type="number" name="accountId" th:value="${criteria.accountId}"
+                       class="form-control" placeholder="Optional"/>
+            </div>
+
+            <div class="form-group">
+                <label for="cardNumber">Card Number (prefix)</label>
+                <input id="cardNumber" type="text" name="cardNumber" th:value="${criteria.cardNumberPrefix}"
+                       maxlength="16" class="form-control" placeholder="Optional prefix"/>
+            </div>
+
+            <div class="inline-actions mt-1">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a th:href="@{/card/list}" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Card Number</th>
+                    <th>Account ID</th>
+                    <th>Embossed Name</th>
+                    <th>Expiry</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="row : ${page.content()}">
+                    <td th:text="${row.cardNumber()}">0000000000000000</td>
+                    <td th:text="${row.accountId()}">1</td>
+                    <td th:text="${row.embossedName()}">Name</td>
+                    <td th:text="${row.expirationDate()}">2025-01-01</td>
+                    <td th:text="${row.activeStatus()}">Y</td>
+                    <td class="inline-actions">
+                        <a class="btn btn-secondary" th:href="@{/card/{id}(id=${row.cardNumber()})}">View</a>
+                        <a class="btn btn-primary" th:href="@{/card/{id}/edit(id=${row.cardNumber()})}">Edit</a>
+                    </td>
+                </tr>
+                <tr th:if="${page.content().isEmpty()}">
+                    <td colspan="6">No cards found.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-right mt-2" th:if="${page.totalPages() > 1}">
+            <a th:if="${page.hasPrevious()}"
+               class="btn btn-secondary"
+               th:href="@{/card/list(page=${page.pageNumber() - 1}, size=${pageSize}, accountId=${criteria.accountId}, cardNumber=${criteria.cardNumberPrefix})}">Previous</a>
+            <a th:if="${page.hasNext()}"
+               class="btn btn-secondary"
+               th:href="@{/card/list(page=${page.pageNumber() + 1}, size=${pageSize}, accountId=${criteria.accountId}, cardNumber=${criteria.cardNumberPrefix})}">Next</a>
+        </div>
+    </div>
+</section>
+</body>
+</html>

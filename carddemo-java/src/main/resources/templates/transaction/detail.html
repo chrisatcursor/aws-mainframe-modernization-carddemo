@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Transaction Detail</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card" th:if="${promptForId}">
+        <h3>Transaction Detail</h3>
+        <form th:action="@{/transaction/detail}" method="get">
+            <div class="form-group">
+                <label for="transactionId">Transaction ID</label>
+                <input type="text" id="transactionId" name="transactionId" maxlength="16" required autofocus
+                       placeholder="Enter transaction ID"/>
+            </div>
+            <button type="submit" class="btn btn-primary">View</button>
+        </form>
+    </div>
+
+    <div class="card" th:if="${txn}">
+        <h3>Transaction Details</h3>
+        <div class="detail-grid">
+            <span class="detail-label">Transaction ID</span>
+            <span class="detail-value" th:text="${txn.transactionId}"></span>
+            <span class="detail-label">Type Code</span>
+            <span class="detail-value" th:text="${txn.typeCode}"></span>
+            <span class="detail-label">Category Code</span>
+            <span class="detail-value" th:text="${txn.categoryCode}"></span>
+            <span class="detail-label">Source</span>
+            <span class="detail-value" th:text="${txn.source}"></span>
+            <span class="detail-label">Description</span>
+            <span class="detail-value" th:text="${txn.description}"></span>
+            <span class="detail-label">Amount</span>
+            <span class="detail-value"
+                  th:text="${txn.amount != null ? #numbers.formatDecimal(txn.amount, 1, 2) : '—'}"></span>
+            <span class="detail-label">Card Number</span>
+            <span class="detail-value" th:text="${txn.cardNumber}"></span>
+            <span class="detail-label">Merchant ID</span>
+            <span class="detail-value" th:text="${txn.merchantId}"></span>
+            <span class="detail-label">Merchant Name</span>
+            <span class="detail-value" th:text="${txn.merchantName}"></span>
+            <span class="detail-label">Merchant City</span>
+            <span class="detail-value" th:text="${txn.merchantCity}"></span>
+            <span class="detail-label">Merchant ZIP</span>
+            <span class="detail-value" th:text="${txn.merchantZip}"></span>
+            <span class="detail-label">Origin Timestamp</span>
+            <span class="detail-value" th:text="${txn.originTimestamp}"></span>
+            <span class="detail-label">Processed Timestamp</span>
+            <span class="detail-value" th:text="${txn.processedTimestamp}"></span>
+        </div>
+    </div>
+
+    <div class="mt-2">
+        <a th:href="@{/transaction/list}" class="btn btn-secondary">Back to Transaction List</a>
+        <a th:href="@{/menu}" class="btn btn-secondary">Back to Menu</a>
+    </div>
+</section>
+</body>
+</html>

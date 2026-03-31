@@ -1,0 +1,115 @@
+package com.carddemo.account;
+
+import java.math.BigDecimal;
+
+/**
+ * Combined account and primary customer data for read-only screens (COACTUPC display path).
+ */
+public record AccountDetailDto(
+        Long acctId,
+        String activeStatus,
+        BigDecimal currentBalance,
+        BigDecimal creditLimit,
+        BigDecimal cashCreditLimit,
+        String openDate,
+        String expirationDate,
+        String reissueDate,
+        BigDecimal currentCycleCredit,
+        BigDecimal currentCycleDebit,
+        String accountAddressZip,
+        String groupId,
+        Long accountVersion,
+        Long custId,
+        String firstName,
+        String middleName,
+        String lastName,
+        String addressLine1,
+        String addressLine2,
+        String addressLine3,
+        String addressStateCode,
+        String addressCountryCode,
+        String customerAddressZip,
+        String phoneNumber1,
+        String phoneNumber2,
+        Long ssn,
+        String govtIssuedId,
+        String dateOfBirth,
+        String eftAccountId,
+        String primaryCardHolderIndicator,
+        Integer ficoCreditScore,
+        Long customerVersion) {
+
+    public static AccountDetailDto from(Account account, Customer customer) {
+        if (account == null) {
+            throw new IllegalArgumentException("account");
+        }
+        if (customer == null) {
+            return new AccountDetailDto(
+                    account.getAcctId(),
+                    account.getActiveStatus(),
+                    account.getCurrentBalance(),
+                    account.getCreditLimit(),
+                    account.getCashCreditLimit(),
+                    account.getOpenDate(),
+                    account.getExpirationDate(),
+                    account.getReissueDate(),
+                    account.getCurrentCycleCredit(),
+                    account.getCurrentCycleDebit(),
+                    account.getAddressZip(),
+                    account.getGroupId(),
+                    account.getVersion(),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null);
+        }
+        return new AccountDetailDto(
+                account.getAcctId(),
+                account.getActiveStatus(),
+                account.getCurrentBalance(),
+                account.getCreditLimit(),
+                account.getCashCreditLimit(),
+                account.getOpenDate(),
+                account.getExpirationDate(),
+                account.getReissueDate(),
+                account.getCurrentCycleCredit(),
+                account.getCurrentCycleDebit(),
+                account.getAddressZip(),
+                account.getGroupId(),
+                account.getVersion(),
+                customer.getCustId(),
+                customer.getFirstName(),
+                customer.getMiddleName(),
+                customer.getLastName(),
+                customer.getAddressLine1(),
+                customer.getAddressLine2(),
+                customer.getAddressLine3(),
+                customer.getAddressStateCode(),
+                customer.getAddressCountryCode(),
+                customer.getAddressZip(),
+                customer.getPhoneNumber1(),
+                customer.getPhoneNumber2(),
+                customer.getSsn(),
+                customer.getGovtIssuedId(),
+                customer.getDateOfBirth(),
+                customer.getEftAccountId(),
+                customer.getPrimaryCardHolderIndicator(),
+                customer.getFicoCreditScore(),
+                customer.getVersion());
+    }
+}

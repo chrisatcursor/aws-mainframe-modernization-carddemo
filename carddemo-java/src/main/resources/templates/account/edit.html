@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Account Update</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card" th:if="${promptForId}">
+        <h3>Account Update</h3>
+        <form th:action="@{/account/update}" method="get">
+            <div class="form-group">
+                <label for="acctIdPrompt">Account ID</label>
+                <input type="number" id="acctIdPrompt" name="acctId" required autofocus placeholder="Enter Account ID"/>
+            </div>
+            <button type="submit" class="btn btn-primary">Continue</button>
+        </form>
+    </div>
+
+    <div class="card" th:if="${detail != null && request != null}">
+        <h3>Update account <span th:text="${detail.acctId}"></span></h3>
+
+        <div th:if="${optimisticLockError}" class="message message-error" th:text="${optimisticLockError}"></div>
+        <div th:if="${#fields.hasGlobalErrors('request')}" class="message message-error">
+            <span th:each="err : ${#fields.globalErrors('request')}" th:text="${err}"></span>
+        </div>
+
+        <p class="inline-actions mb-2">
+            <a th:href="@{/account/view(acctId=${detail.acctId})}" class="btn btn-secondary">Cancel</a>
+        </p>
+
+        <div class="card mb-2" th:if="${detail}">
+            <h4>Read-only balances</h4>
+            <div class="detail-grid">
+                <span class="detail-label">Current Balance</span>
+                <span class="detail-value" th:text="${detail.currentBalance != null ? #numbers.formatDecimal(detail.currentBalance, 1, 2) : '—'}"></span>
+                <span class="detail-label">Current Cycle Credit</span>
+                <span class="detail-value" th:text="${detail.currentCycleCredit != null ? #numbers.formatDecimal(detail.currentCycleCredit, 1, 2) : '—'}"></span>
+                <span class="detail-label">Current Cycle Debit</span>
+                <span class="detail-value" th:text="${detail.currentCycleDebit != null ? #numbers.formatDecimal(detail.currentCycleDebit, 1, 2) : '—'}"></span>
+                <span class="detail-label">Customer ID</span>
+                <span class="detail-value" th:text="${detail.custId}"></span>
+                <span class="detail-label">Middle Name</span>
+                <span class="detail-value" th:text="${detail.middleName}"></span>
+                <span class="detail-label">Primary Card Holder</span>
+                <span class="detail-value" th:text="${detail.primaryCardHolderIndicator}"></span>
+            </div>
+        </div>
+
+        <form th:action="@{/account/update}" th:object="${request}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" th:field="*{acctId}"/>
+            <input type="hidden" th:field="*{accountVersion}"/>
+            <input type="hidden" th:field="*{customerVersion}"/>
+
+            <h4>Account</h4>
+            <div class="form-group">
+                <label for="activeStatus">Active Status</label>
+                <select id="activeStatus" class="form-control" th:field="*{activeStatus}">
+                    <option value="Y">Y — Active</option>
+                    <option value="N">N — Inactive</option>
+                </select>
+                <span class="field-error" th:if="${#fields.hasErrors('activeStatus')}" th:errors="*{activeStatus}"></span>
+            </div>
+            <div class="form-group">
+                <label for="creditLimit">Credit Limit</label>
+                <input id="creditLimit" type="text" class="form-control" th:field="*{creditLimit}" placeholder="0.00"/>
+                <span class="field-error" th:if="${#fields.hasErrors('creditLimit')}" th:errors="*{creditLimit}"></span>
+            </div>
+            <div class="form-group">
+                <label for="cashCreditLimit">Cash Credit Limit</label>
+                <input id="cashCreditLimit" type="text" class="form-control" th:field="*{cashCreditLimit}" placeholder="0.00"/>
+                <span class="field-error" th:if="${#fields.hasErrors('cashCreditLimit')}" th:errors="*{cashCreditLimit}"></span>
+            </div>
+            <div class="form-group">
+                <label for="openDate">Open Date</label>
+                <input id="openDate" type="text" class="form-control" th:field="*{openDate}" placeholder="YYYY-MM-DD" maxlength="10"/>
+                <span class="field-error" th:if="${#fields.hasErrors('openDate')}" th:errors="*{openDate}"></span>
+            </div>
+            <div class="form-group">
+                <label for="expirationDate">Expiration Date</label>
+                <input id="expirationDate" type="text" class="form-control" th:field="*{expirationDate}" placeholder="YYYY-MM-DD" maxlength="10"/>
+                <span class="field-error" th:if="${#fields.hasErrors('expirationDate')}" th:errors="*{expirationDate}"></span>
+            </div>
+            <div class="form-group">
+                <label for="reissueDate">Reissue Date</label>
+                <input id="reissueDate" type="text" class="form-control" th:field="*{reissueDate}" placeholder="YYYY-MM-DD" maxlength="10"/>
+                <span class="field-error" th:if="${#fields.hasErrors('reissueDate')}" th:errors="*{reissueDate}"></span>
+            </div>
+            <div class="form-group">
+                <label for="groupId">Group ID</label>
+                <input id="groupId" type="text" class="form-control" th:field="*{groupId}" maxlength="10"/>
+                <span class="field-error" th:if="${#fields.hasErrors('groupId')}" th:errors="*{groupId}"></span>
+            </div>
+            <div class="form-group">
+                <label for="addressZip">Account ZIP</label>
+                <input id="addressZip" type="text" class="form-control" th:field="*{addressZip}" maxlength="10"/>
+                <span class="field-error" th:if="${#fields.hasErrors('addressZip')}" th:errors="*{addressZip}"></span>
+            </div>
+
+            <h4>Customer</h4>
+            <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input id="firstName" type="text" class="form-control" th:field="*{firstName}" maxlength="25"/>
+                <span class="field-error" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></span>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input id="lastName" type="text" class="form-control" th:field="*{lastName}" maxlength="25"/>
+                <span class="field-error" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></span>
+            </div>
+            <div class="form-group">
+                <label for="addressLine1">Address Line 1</label>
+                <input id="addressLine1" type="text" class="form-control" th:field="*{addressLine1}" maxlength="50"/>
+                <span class="field-error" th:if="${#fields.hasErrors('addressLine1')}" th:errors="*{addressLine1}"></span>
+            </div>
+            <div class="form-group">
+                <label for="addressLine2">Address Line 2</label>
+                <input id="addressLine2" type="text" class="form-control" th:field="*{addressLine2}" maxlength="50"/>
+                <span class="field-error" th:if="${#fields.hasErrors('addressLine2')}" th:errors="*{addressLine2}"></span>
+            </div>
+            <div class="form-group">
+                <label for="addressLine3">Address Line 3</label>
+                <input id="addressLine3" type="text" class="form-control" th:field="*{addressLine3}" maxlength="50"/>
+                <span class="field-error" th:if="${#fields.hasErrors('addressLine3')}" th:errors="*{addressLine3}"></span>
+            </div>
+            <div class="form-group">
+                <label for="addressStateCode">State Code</label>
+                <input id="addressStateCode" type="text" class="form-control" th:field="*{addressStateCode}" maxlength="2"/>
+                <span class="field-error" th:if="${#fields.hasErrors('addressStateCode')}" th:errors="*{addressStateCode}"></span>
+            </div>
+            <div class="form-group">
+                <label for="addressCountryCode">Country Code</label>
+                <input id="addressCountryCode" type="text" class="form-control" th:field="*{addressCountryCode}" maxlength="3"/>
+                <span class="field-error" th:if="${#fields.hasErrors('addressCountryCode')}" th:errors="*{addressCountryCode}"></span>
+            </div>
+            <div class="form-group">
+                <label for="customerAddressZip">Customer ZIP</label>
+                <input id="customerAddressZip" type="text" class="form-control" th:field="*{customerAddressZip}" maxlength="10"/>
+                <span class="field-error" th:if="${#fields.hasErrors('customerAddressZip')}" th:errors="*{customerAddressZip}"></span>
+            </div>
+            <div class="form-group">
+                <label for="phoneNumber1">Phone 1</label>
+                <input id="phoneNumber1" type="text" class="form-control" th:field="*{phoneNumber1}" maxlength="15"/>
+                <span class="field-error" th:if="${#fields.hasErrors('phoneNumber1')}" th:errors="*{phoneNumber1}"></span>
+            </div>
+            <div class="form-group">
+                <label for="phoneNumber2">Phone 2</label>
+                <input id="phoneNumber2" type="text" class="form-control" th:field="*{phoneNumber2}" maxlength="15"/>
+                <span class="field-error" th:if="${#fields.hasErrors('phoneNumber2')}" th:errors="*{phoneNumber2}"></span>
+            </div>
+            <div class="form-group">
+                <label for="ssn">SSN (numeric)</label>
+                <input id="ssn" type="number" class="form-control" th:field="*{ssn}"/>
+                <span class="field-error" th:if="${#fields.hasErrors('ssn')}" th:errors="*{ssn}"></span>
+            </div>
+            <div class="form-group">
+                <label for="govtIssuedId">Government Issued ID</label>
+                <input id="govtIssuedId" type="text" class="form-control" th:field="*{govtIssuedId}" maxlength="20"/>
+                <span class="field-error" th:if="${#fields.hasErrors('govtIssuedId')}" th:errors="*{govtIssuedId}"></span>
+            </div>
+            <div class="form-group">
+                <label for="dateOfBirth">Date of Birth</label>
+                <input id="dateOfBirth" type="text" class="form-control" th:field="*{dateOfBirth}" placeholder="YYYY-MM-DD" maxlength="10"/>
+                <span class="field-error" th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}"></span>
+            </div>
+            <div class="form-group">
+                <label for="eftAccountId">EFT Account ID</label>
+                <input id="eftAccountId" type="text" class="form-control" th:field="*{eftAccountId}" maxlength="10"/>
+                <span class="field-error" th:if="${#fields.hasErrors('eftAccountId')}" th:errors="*{eftAccountId}"></span>
+            </div>
+            <div class="form-group">
+                <label for="ficoCreditScore">FICO Credit Score</label>
+                <input id="ficoCreditScore" type="number" class="form-control" th:field="*{ficoCreditScore}"/>
+                <span class="field-error" th:if="${#fields.hasErrors('ficoCreditScore')}" th:errors="*{ficoCreditScore}"></span>
+            </div>
+
+            <div class="inline-actions">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a th:href="@{/account/view(acctId=${detail.acctId})}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="mt-2" th:if="${promptForId}">
+        <a th:href="@{/menu}" class="btn btn-secondary">Back to Menu</a>
+    </div>
+    <div class="mt-2" th:if="${detail != null && request != null}">
+        <a th:href="@{/menu}" class="btn btn-secondary">Back to Menu</a>
+    </div>
+</section>
+</body>
+</html>

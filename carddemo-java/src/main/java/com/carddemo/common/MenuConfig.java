@@ -17,7 +17,7 @@ public final class MenuConfig {
         new MenuOption(4,  "Credit Card View",           "/card/detail",        MenuOption.ROLE_USER),
         new MenuOption(5,  "Credit Card Update",         "/card/update",        MenuOption.ROLE_USER),
         new MenuOption(6,  "Transaction List",           "/transaction/list",   MenuOption.ROLE_USER),
-        new MenuOption(7,  "Transaction View",           "/transaction/detail", MenuOption.ROLE_USER),
+        new MenuOption(7,  "Transaction View",           "/transaction/list",   MenuOption.ROLE_USER),
         new MenuOption(8,  "Transaction Add",            "/transaction/add",    MenuOption.ROLE_USER),
         new MenuOption(9,  "Transaction Reports",        "/report/submit",      MenuOption.ROLE_USER),
         new MenuOption(10, "Bill Payment",               "/payment/bill",       MenuOption.ROLE_USER),
@@ -30,7 +30,8 @@ public final class MenuConfig {
         new MenuOption(3, "User Update (Security)",                  "/admin/user/update", MenuOption.ROLE_ADMIN),
         new MenuOption(4, "User Delete (Security)",                  "/admin/user/delete", MenuOption.ROLE_ADMIN),
         new MenuOption(5, "Transaction Type List/Update (Db2)",      "/admin/trantype/list",   MenuOption.ROLE_ADMIN),
-        new MenuOption(6, "Transaction Type Maintenance (Db2)",      "/admin/trantype/update", MenuOption.ROLE_ADMIN)
+        new MenuOption(6, "Transaction Type Maintenance (Db2)",      "/admin/trantype/update", MenuOption.ROLE_ADMIN),
+        new MenuOption(7, "Phase 5 batch jobs (purge / IMS / COBTUPDT)", "/admin/batch",       MenuOption.ROLE_ADMIN)
     );
 
     public static List<MenuOption> optionsForRole(String role) {

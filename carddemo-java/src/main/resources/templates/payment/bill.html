@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Bill payment</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card">
+        <h3>Bill payment</h3>
+
+        <p class="inline-actions mb-2">
+            <a th:href="@{/menu}" class="btn btn-secondary">Back to menu</a>
+        </p>
+
+        <form th:action="@{/payment/bill}" method="get" class="form-group">
+            <label for="acctIdLookup">Account ID</label>
+            <input id="acctIdLookup" name="acctId" type="number" th:value="${param.acctId}"
+                   min="1" step="1"/>
+            <div class="inline-actions mt-2">
+                <button type="submit" class="btn btn-secondary">Load account</button>
+            </div>
+        </form>
+
+        <div th:if="${loadError != null}" class="form-group">
+            <p class="field-error" th:text="${loadError}">Load error</p>
+        </div>
+
+        <div th:if="${account != null}" class="card mt-2">
+            <h4>Account</h4>
+            <dl class="detail-grid">
+                <dt class="detail-label">Account ID</dt>
+                <dd class="detail-value" th:text="${account.acctId}">1</dd>
+                <dt class="detail-label">Current balance</dt>
+                <dd class="detail-value" th:text="${account.currentBalance}">0.00</dd>
+            </dl>
+
+            <form th:action="@{/payment/bill}" method="post" class="mt-2">
+                <input type="hidden" name="acctId" th:value="${account.acctId}"/>
+                <div class="inline-actions">
+                    <button type="submit" class="btn btn-primary">Confirm bill payment (pay full balance)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+</body>
+</html>

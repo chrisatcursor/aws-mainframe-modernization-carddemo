@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Transaction category</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card">
+        <h3>Transaction category</h3>
+        <form th:action="@{/admin/trantype/category}" th:object="${form}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" th:field="*{catCd}"/>
+            <div class="form-group">
+                <label for="typeCode">Type</label>
+                <select id="typeCode" th:field="*{typeCode}" class="form-control" required>
+                    <option th:each="t : ${types}" th:value="${t.typeCode}"
+                            th:text="${t.typeCode + ' — ' + t.typeDescription}">01</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="categoryCode">Category code (4 chars, DB2 TRC)</label>
+                <input id="categoryCode" th:field="*{categoryCode}" maxlength="4" class="form-control"
+                       placeholder="0001"/>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input id="description" th:field="*{description}" maxlength="50" class="form-control"/>
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a th:href="@{/admin/trantype/list}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</section>
+</body>
+</html>

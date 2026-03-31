@@ -25,6 +25,13 @@ spring:
     job:
       enabled: false
 
+  artemis:
+    mode: embedded
+
+  jms:
+    template:
+      default-destination: carddemo.auth.request
+
 server:
   port: 8080
 
@@ -32,3 +39,24 @@ logging:
   level:
     com.carddemo: DEBUG
     org.springframework.security: INFO
+
+carddemo:
+  mq:
+    enabled: true
+    auth-request-queue: carddemo.auth.request
+    auth-reply-queue: carddemo.auth.reply
+    date-request-queue: carddemo.request.date
+    acct-request-queue: carddemo.request.acct
+    date-reply-queue: carddemo.reply.date
+    acct-reply-queue: carddemo.reply.acct
+    error-queue: carddemo.error
+  batch:
+    auth-purge:
+      expiry-days: 5
+    trantype:
+      input: classpath:batch/trantype-update-sample.txt
+    ims-auth:
+      summary-input: classpath:batch/auth-summary-staging.txt
+      detail-input: classpath:batch/auth-detail-staging.txt
+      summary-output: file:${java.io.tmpdir}/carddemo-ims-auth-summary.txt
+      detail-output: file:${java.io.tmpdir}/carddemo-ims-auth-detail.txt

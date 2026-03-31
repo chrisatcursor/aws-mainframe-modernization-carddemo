@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Pending Auth Details</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card">
+        <h3 th:text="'Account ' + ${summary.acctId} + ' — pending authorizations'">Details</h3>
+        <p class="muted">
+            Approved: <span th:text="${summary.approvedAuthCnt}">0</span> /
+            Declined: <span th:text="${summary.declinedAuthCnt}">0</span>
+        </p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Card</th>
+                    <th>Response</th>
+                    <th>Amount</th>
+                    <th>Merchant</th>
+                    <th>Fraud</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="d : ${details}">
+                    <td th:text="${d.cardNum}">0000</td>
+                    <td th:text="${d.authRespCode}">00</td>
+                    <td th:text="${d.transactionAmt}">0</td>
+                    <td th:text="${d.merchantName}">-</td>
+                    <td th:text="${d.authFraud}"> </td>
+                    <td>
+                        <a th:href="@{/auth/pending/detail(acctId=${summary.acctId},authDate9c=${d.authDate9c},authTime9c=${d.authTime9c},cardNum=${d.cardNum})}">View</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p><a th:href="@{/auth/pending}">Back to list</a></p>
+    </div>
+</section>
+</body>
+</html>
