@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Authorization Detail</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card">
+        <h3>Authorization detail</h3>
+        <dl class="detail-grid">
+            <dt>Account</dt><dd th:text="${acctId}">1</dd>
+            <dt>Card</dt><dd th:text="${detail.cardNum}">-</dd>
+            <dt>Auth date (9c)</dt><dd th:text="${detail.authDate9c}">0</dd>
+            <dt>Auth time (9c)</dt><dd th:text="${detail.authTime9c}">0</dd>
+            <dt>Response</dt><dd th:text="${detail.authRespCode}">00</dd>
+            <dt>Transaction amount</dt><dd th:text="${detail.transactionAmt}">0</dd>
+            <dt>Merchant</dt><dd th:text="${detail.merchantName}">-</dd>
+            <dt>Fraud flag</dt><dd th:text="${detail.authFraud}"> </dd>
+        </dl>
+
+        <form th:action="@{/auth/pending/fraud}" method="post" class="mt-2">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" name="acctId" th:value="${acctId}"/>
+            <input type="hidden" name="authDate9c" th:value="${detail.authDate9c}"/>
+            <input type="hidden" name="authTime9c" th:value="${detail.authTime9c}"/>
+            <input type="hidden" name="cardNum" th:value="${detail.cardNum}"/>
+            <button type="submit" name="action" value="F" class="btn btn-primary">Report fraud</button>
+            <button type="submit" name="action" value="R" class="btn btn-secondary">Remove fraud flag</button>
+        </form>
+
+        <p class="mt-2"><a th:href="@{/auth/pending/{id}(id=${acctId})}">Back to details</a></p>
+    </div>
+</section>
+</body>
+</html>

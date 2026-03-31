@@ -23,6 +23,10 @@ public class TransactionCategory {
     @Column(name = "description", length = 50)
     private String description;
 
+    /** DB2 TRC_TYPE_CATEGORY (CHAR 4)); aligned with Phase 5 / DCLTRCAT. */
+    @Column(name = "category_code", length = 4, nullable = false)
+    private String categoryCode;
+
     protected TransactionCategory() {}
 
     /** Detached instance for tests and seed helpers. */
@@ -30,6 +34,7 @@ public class TransactionCategory {
         TransactionCategory c = new TransactionCategory();
         c.setId(new TransactionCategoryKey(typeCode, categoryCode));
         c.setDescription(description);
+        c.setCategoryCode(String.format("%04d", categoryCode));
         return c;
     }
 
@@ -37,6 +42,8 @@ public class TransactionCategory {
     public void setId(TransactionCategoryKey id) { this.id = id; }
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+    public String getCategoryCode() { return categoryCode; }
+    public void setCategoryCode(String categoryCode) { this.categoryCode = categoryCode; }
 
     @Embeddable
     public static class TransactionCategoryKey implements Serializable {

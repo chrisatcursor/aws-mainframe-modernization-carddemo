@@ -1,0 +1,1 @@
+# Optional: pipe-delimited detail rows — acctId|authDate9c|authTime9c|authOrigDate|authOrigTime|cardNum|authResp|transAmt|apprAmt
