@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: carddemo-service
+  datasource:
+    url: jdbc:h2:mem:carddemo;DB_CLOSE_DELAY=-1;MODE=LEGACY
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
+
+carddemo:
+  batch:
+    dalytran-input-dir: ${java.io.tmpdir}/carddemo-batch/in
+    reject-output-dir: ${java.io.tmpdir}/carddemo-batch/rejects
+    statement-text-dir: ${java.io.tmpdir}/carddemo-batch/statements
+    statement-html-dir: ${java.io.tmpdir}/carddemo-batch/statements-html
+
+logging:
+  level:
+    org.springframework.batch: INFO
