@@ -1,0 +1,11 @@
+# Local JMS broker for Phase 5 MQ smoke tests (profile: jms + Maven profile jms).
+# docker compose -f docker-compose-artemis.yml up -d
+services:
+  artemis:
+    image: apache/activemq-artemis:2.37.0
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    environment:
+      ARTEMIS_USER: admin
+      ARTEMIS_PASSWORD: admin

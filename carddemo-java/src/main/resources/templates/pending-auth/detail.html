@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="'Pending auth — account ' + ${acctId}">Detail</title>
+</head>
+<body>
+<h1 th:text="'Account ' + ${acctId}">Account</h1>
+<p th:if="${message}" th:text="${message}" style="color:green;"></p>
+<p><a th:href="@{/admin/pending-auth}">Back to list</a></p>
+<table border="1">
+    <tr>
+        <th>Id</th><th>Time</th><th>Card</th><th>Txn id</th><th>Resp</th><th>Fraud</th><th>Action</th>
+    </tr>
+    <tr th:each="d : ${details}">
+        <td th:text="${d.id}">1</td>
+        <td th:text="${d.authTs}">-</td>
+        <td th:text="${d.cardNum}">-</td>
+        <td th:text="${d.transactionId}">-</td>
+        <td th:text="${d.authRespCode}">-</td>
+        <td th:text="${d.fraudFlag}">-</td>
+        <td>
+            <form th:action="@{/admin/pending-auth/{a}/detail/{id}/fraud(a=${acctId},id=${d.id})}" method="post" style="display:inline;">
+                <button type="submit" name="action" value="F">Report fraud</button>
+                <button type="submit" name="action" value="R">Remove fraud</button>
+            </form>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

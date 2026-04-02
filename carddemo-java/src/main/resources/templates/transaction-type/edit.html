@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Edit transaction type</title>
+</head>
+<body>
+<h1>Transaction type</h1>
+<form th:action="@{/admin/transaction-types}" method="post">
+    <p><label>Code (2 chars) <input name="trType" th:value="${trType}" maxlength="2" required/></label></p>
+    <p><label>Description <input name="description" th:value="${description}" maxlength="50" size="50" required/></label></p>
+    <p><button type="submit">Save</button> <a th:href="@{/admin/transaction-types}">Cancel</a></p>
+</form>
+</body>
+</html>

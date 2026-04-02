@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: carddemo-java
+  datasource:
+    url: jdbc:postgresql://localhost:5432/carddemo
+    username: carddemo
+    password: carddemo
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
+
+carddemo:
+  features:
+    jms-enabled: false
+  jms:
+    account-request-queue: CARD.DEMO.REQUEST.ACCT
+    date-request-queue: CARD.DEMO.REQUEST.DATE
+    auth-bridge-request-queue: CARD.DEMO.AUTH.REQUEST
+  pending-auth:
+    purge-expiry-days: 5
+    export-dir: ${java.io.tmpdir}/carddemo-export
+    import-summary-file: ${java.io.tmpdir}/carddemo-import/summary.dat
+    import-detail-file: ${java.io.tmpdir}/carddemo-import/detail.dat
+  transaction-type:
+    batch-input-file: ${java.io.tmpdir}/carddemo-trntype/trntype-update.dat
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:carddemo;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true

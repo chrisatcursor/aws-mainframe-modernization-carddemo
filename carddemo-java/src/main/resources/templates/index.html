@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>CardDemo</title>
+</head>
+<body>
+<h1>CardDemo Java</h1>
+<ul>
+    <li sec:authorize="hasRole('ADMIN')">
+        <a th:href="@{/admin/pending-auth}">Pending authorizations (Phase 5)</a>
+    </li>
+    <li sec:authorize="hasRole('ADMIN')">
+        <a th:href="@{/admin/transaction-types}">Transaction types (Phase 5)</a>
+    </li>
+</ul>
+</body>
+</html>
