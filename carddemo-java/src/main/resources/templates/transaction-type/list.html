@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Transaction types</title>
+</head>
+<body>
+<h1>Transaction types</h1>
+<p th:if="${message}" th:text="${message}" style="color:green;"></p>
+<p th:if="${error}" th:text="${error}" style="color:red;"></p>
+<p><a th:href="@{/}">Home</a> | <a th:href="@{/admin/transaction-types/new}">Add</a></p>
+<table border="1">
+    <tr><th>Code</th><th>Description</th><th></th></tr>
+    <tr th:each="t : ${types}">
+        <td th:text="${t.trType}">01</td>
+        <td th:text="${t.description}">-</td>
+        <td>
+            <a th:href="@{/admin/transaction-types/{c}/edit(c=${t.trType})}">Edit</a>
+            <form th:action="@{/admin/transaction-types/{c}/delete(c=${t.trType})}" method="post" style="display:inline;">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

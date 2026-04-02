@@ -1,0 +1,13 @@
+spring:
+  config:
+    activate:
+      on-profile: jms
+  artemis:
+    mode: native
+    broker-url: tcp://localhost:61616
+    user: admin
+    password: admin
+
+carddemo:
+  features:
+    jms-enabled: true

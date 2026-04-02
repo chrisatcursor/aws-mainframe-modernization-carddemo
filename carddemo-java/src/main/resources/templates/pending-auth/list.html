@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Pending authorizations</title>
+</head>
+<body>
+<h1>Pending authorizations</h1>
+<p><a th:href="@{/}">Home</a></p>
+<table border="1">
+    <tr><th>Account</th><th>Customer</th><th>Status</th></tr>
+    <tr th:each="s : ${summaries}">
+        <td><a th:href="@{/admin/pending-auth/{id}(id=${s.acctId})}" th:text="${s.acctId}">1</a></td>
+        <td th:text="${s.custId}">0</td>
+        <td th:text="${s.authStatus}">-</td>
+    </tr>
+</table>
+</body>
+</html>
